@@ -12,12 +12,18 @@ import (
 	"gorm.io/gorm/schema"
 )
 
+// Config provides the global configuration data for gorm-crypto.
+// At the moment, that's just a list of different Setups your application supports.
+// We support multiple Setups because application requirements change over time,
+// and you'll want to be able to use values encrypted/signed by older keys/algorithms.
+// Be sure to sort your Setups with the current one first, as that's the one used to encrypt/sign your data.
 type Config struct {
 	Setups []Setup
 }
 
-var config Config
-
+// Setup describes the way your data should be handled by gorm-crypto.
+// That includes the encryption algorithm/keys, the signing algorithm/keys,
+// the mechanism for serializing values, and the encoding to use to coerce binary data into values that can safely be serialized/stored.
 type Setup struct {
 	Encoder          encoding.Algorithm
 	Serializer       serializing.Algorithm
@@ -25,6 +31,8 @@ type Setup struct {
 	SignAlgorithm    signing.Algorithm
 }
 
+// Init sets up gorm-crypto for use by telling it which Config to use.
+// NOTE: This function may be deprecated at some point if I can work out how to properly make gorm-crypto into a GORM plugin.
 func Init(c Config) error {
 	if len(c.Setups) < 1 {
 		return errors.New("database cryptography configuration incomplete")
@@ -42,6 +50,8 @@ type internalStruct struct {
 	Raw       []byte
 	Signature []byte
 }
+
+var config Config
 
 func serverType(db *gorm.DB, field *schema.Field) string {
 	switch db.Dialector.Name() {

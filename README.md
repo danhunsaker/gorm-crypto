@@ -27,6 +27,7 @@ import (
 )
 
 var eKey = "EncryptionKeyThatShouldBe32Bytes"
+var sKey = "SigningKeyThatShouldBe32BytesToo"
 
 func main() {
     aes, err := encryption.NewAES256GCM(eKey)
@@ -34,15 +35,9 @@ func main() {
         panic(err)
     }
 
-    sKeyPrivate, sKeyPublic, err := ed25519.GenerateKey(rand.Reader)
-    if err != nil {
-        panic(err)
-    }
-
-    ed25519, err := signing.NewED25519(sKeyPrivate, sKeyPublic)
-    if err != nil {
-        panic(err)
-    }
+	sKeyPrivate := ed25519.NewKeyFromSeed(sKey)
+	sKeyPublic := sKeyPrivate.Public().(ed25519.PublicKey)
+    ed25519 := signing.NewED25519(&sKeyPrivate, &sKeyPublic)
 
     gc.Init(gc.Config{
         Setups: []gc.Setup{
@@ -75,5 +70,5 @@ whether the value is actually `nil` instead of whatever concrete type it would o
 
 ## Acknowledgements
 
-As a library with similar goals and implementation, some code is very similar to pkasila/gorm-crypto, which is an older library with more maintainers.
-If you don't need the advanced features offered here, please use that fine library instead!
+As a library with similar goals and implementation, some code is very similar to github.com/pkasila/gorm-crypto, which is an older library with more
+maintainers. If you don't need the advanced features offered here, please use that fine library instead!
