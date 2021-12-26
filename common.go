@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"errors"
 
+	"github.com/danhunsaker/gorm-crypto/encoding"
 	"github.com/danhunsaker/gorm-crypto/encryption"
 	"github.com/danhunsaker/gorm-crypto/serializing"
 	"github.com/danhunsaker/gorm-crypto/signing"
@@ -18,6 +19,7 @@ type Config struct {
 var config Config
 
 type Setup struct {
+	Encoder          encoding.Algorithm
 	Serializer       serializing.Algorithm
 	EncryptAlgorithm encryption.Algorithm
 	SignAlgorithm    signing.Algorithm
@@ -63,9 +65,14 @@ func decrypt(source []byte, dest interface{}) error {
 	var err error
 
 	for _, setup := range config.Setups {
-		var decrypted []byte
+		var binary, decrypted []byte
 
-		decrypted, err = setup.EncryptAlgorithm.Decrypt(source)
+		binary, err = setup.Encoder.Decode(source)
+		if err != nil {
+			continue
+		}
+
+		decrypted, err = setup.EncryptAlgorithm.Decrypt(binary)
 		if err != nil {
 			continue
 		}
@@ -93,7 +100,12 @@ func encrypt(value interface{}) (driver.Value, error) {
 		return nil, err
 	}
 
-	return crypted, nil
+	encoded, err := config.Setups[0].Encoder.Encode(crypted)
+	if err != nil {
+		return nil, err
+	}
+
+	return encoded, nil
 }
 
 func verify(source []byte, dest interface{}) (bool, error) {
@@ -102,13 +114,19 @@ func verify(source []byte, dest interface{}) (bool, error) {
 
 	for _, setup := range config.Setups {
 		var signed internalStruct
+		var signature []byte
 
 		err = setup.Serializer.Unserialize(source, &signed)
 		if err != nil {
 			continue
 		}
 
-		valid, err = setup.SignAlgorithm.Verify(signed.Raw, signed.Signature)
+		signature, err = setup.Encoder.Decode(signed.Signature)
+		if err != nil {
+			continue
+		}
+
+		valid, err = setup.SignAlgorithm.Verify(signed.Raw, signature)
 		if err != nil {
 			continue
 		}
@@ -131,12 +149,17 @@ func sign(value interface{}) (driver.Value, error) {
 		return nil, err
 	}
 
-	sigature, err := config.Setups[0].SignAlgorithm.Sign(serial)
+	signature, err := config.Setups[0].SignAlgorithm.Sign(serial)
 	if err != nil {
 		return nil, err
 	}
 
-	signed, err := config.Setups[0].Serializer.Serialize(internalStruct{Raw: serial, Signature: sigature})
+	encoded, err := config.Setups[0].Encoder.Encode(signature)
+	if err != nil {
+		return nil, err
+	}
+
+	signed, err := config.Setups[0].Serializer.Serialize(internalStruct{Raw: serial, Signature: encoded})
 	if err != nil {
 		return nil, err
 	}
@@ -150,19 +173,29 @@ func decryptVerify(source []byte, dest interface{}) (bool, error) {
 
 	for _, setup := range config.Setups {
 		var signed internalStruct
-		var decrypted []byte
+		var decoded, decrypted, signature []byte
 
 		err = setup.Serializer.Unserialize(source, &signed)
 		if err != nil {
 			continue
 		}
 
-		decrypted, err = setup.EncryptAlgorithm.Decrypt(signed.Raw)
+		decoded, err = setup.Encoder.Decode(signed.Raw)
 		if err != nil {
 			continue
 		}
 
-		valid, err = setup.SignAlgorithm.Verify(decrypted, signed.Signature)
+		decrypted, err = setup.EncryptAlgorithm.Decrypt(decoded)
+		if err != nil {
+			continue
+		}
+
+		signature, err = setup.Encoder.Decode(signed.Signature)
+		if err != nil {
+			continue
+		}
+
+		valid, err = setup.SignAlgorithm.Verify(decrypted, signature)
 		if err != nil {
 			continue
 		}
@@ -190,12 +223,22 @@ func encryptSign(value interface{}) (driver.Value, error) {
 		return nil, err
 	}
 
-	sigature, err := config.Setups[0].SignAlgorithm.Sign(serial)
+	encodedData, err := config.Setups[0].Encoder.Encode(crypted)
 	if err != nil {
 		return nil, err
 	}
 
-	signed, err := config.Setups[0].Serializer.Serialize(internalStruct{Raw: crypted, Signature: sigature})
+	signature, err := config.Setups[0].SignAlgorithm.Sign(serial)
+	if err != nil {
+		return nil, err
+	}
+
+	encodedSign, err := config.Setups[0].Encoder.Encode(signature)
+	if err != nil {
+		return nil, err
+	}
+
+	signed, err := config.Setups[0].Serializer.Serialize(internalStruct{Raw: encodedData, Signature: encodedSign})
 	if err != nil {
 		return nil, err
 	}
