@@ -18,6 +18,7 @@ jobs:
       - uses: Jerome1337/golint-action@v1.0.2
       - uses: tommy-muehle/go-mnd@v2.2.0
       - uses: joelanford/go-apidiff@v0.1.0
+        if: github.event_name == 'pull_request'
 
   test:
     strategy:
