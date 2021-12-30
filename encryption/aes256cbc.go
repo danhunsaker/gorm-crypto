@@ -32,19 +32,23 @@ func NewAES256CBC(key string) (*AES256CBC, error) {
 
 // Encrypt encrypts data with key
 func (e *AES256CBC) Encrypt(plain []byte) ([]byte, error) {
+	padded := 0
+
 	if f := len(plain) % aes.BlockSize; f != 0 {
-		padding := make([]byte, aes.BlockSize-f)
-		plain = append(plain, padding...)
+		padded = aes.BlockSize - f
+		plain = append(plain, bytes.Repeat([]byte{byte(padded)}, padded)...)
 	}
 
-	crypted := make([]byte, aes.BlockSize+len(plain))
+	crypted := make([]byte, aes.BlockSize+len(plain)+1)
 	iv := crypted[:aes.BlockSize]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
 		return nil, err
 	}
 
+	crypted[aes.BlockSize] = byte(padded)
+
 	mode := cipher.NewCBCEncrypter(e.block, iv)
-	mode.CryptBlocks(crypted[aes.BlockSize:], plain)
+	mode.CryptBlocks(crypted[aes.BlockSize+1:], plain)
 	return crypted, nil
 }
 
@@ -55,14 +59,21 @@ func (e *AES256CBC) Decrypt(crypted []byte) ([]byte, error) {
 	}
 
 	iv := crypted[:aes.BlockSize]
-	crypted = crypted[aes.BlockSize:]
+	padded := crypted[aes.BlockSize]
+	crypted = crypted[aes.BlockSize+1:]
 
 	if len(crypted)%aes.BlockSize != 0 {
 		return nil, errors.New("encrypted data is not a multiple of the AES256 block size")
 	}
 
 	mode := cipher.NewCBCDecrypter(e.block, iv)
-	mode.CryptBlocks(crypted, crypted)
-	withoutPadding := bytes.ReplaceAll(crypted, make([]byte, 1), []byte{})
-	return withoutPadding, nil
+	decrypted := make([]byte, len(crypted))
+	mode.CryptBlocks(decrypted, crypted)
+
+	if int(padded) > 0 {
+		suffix := bytes.Repeat([]byte{padded}, int(padded))
+		return bytes.TrimSuffix(decrypted, suffix), nil
+	}
+
+	return decrypted, nil
 }

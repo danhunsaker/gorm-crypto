@@ -13,11 +13,11 @@ type NaClBox struct {
 	sharedKey [32]byte
 }
 
-func NewNaClBox(publicKey, privateKey *[32]byte) NaClBox {
+func NewNaClBox(privateKey, publicKey *[32]byte) *NaClBox {
 	sharedEncryptKey := new([32]byte)
 	box.Precompute(sharedEncryptKey, publicKey, privateKey)
 
-	return NaClBox{
+	return &NaClBox{
 		sharedKey: *sharedEncryptKey,
 	}
 }

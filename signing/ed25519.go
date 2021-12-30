@@ -17,6 +17,16 @@ func NewED25519(privateKey *ed25519.PrivateKey, publicKey *ed25519.PublicKey) *E
 	}
 }
 
+func NewED25519FromSeed(seed string) *ED25519 {
+	privateKey := ed25519.NewKeyFromSeed([]byte(seed))
+	publicKey := privateKey.Public().(ed25519.PublicKey)
+
+	return &ED25519{
+		private: &privateKey,
+		public:  &publicKey,
+	}
+}
+
 func (s *ED25519) Sign(plain []byte) ([]byte, error) {
 	return ed25519.Sign(*s.private, plain), nil
 }

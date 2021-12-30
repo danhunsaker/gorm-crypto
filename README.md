@@ -16,9 +16,6 @@ Then, in your code, you would do something like this:
 package main
 
 import (
-    "crypto/ed25519"
-    "crypto/rand"
-
     gc "github.com/danhunsaker/gorm-crypto"
     "github.com/danhunsaker/gorm-crypto/encoding"
     "github.com/danhunsaker/gorm-crypto/encryption"
@@ -35,19 +32,15 @@ func main() {
         panic(err)
     }
 
-	sKeyPrivate := ed25519.NewKeyFromSeed(sKey)
-	sKeyPublic := sKeyPrivate.Public().(ed25519.PublicKey)
-    ed25519 := signing.NewED25519(&sKeyPrivate, &sKeyPublic)
-
     gc.Init(gc.Config{
         Setups: []gc.Setup{
             {
-                Encoding:    encoding.Base64{},
-                Serializing: serializing.JSON{},
-                Encryption:  aes,
-                Signing:     ed25519,
+				Encoder:          encoding.Base64{},
+				Serializer:       serializing.JSON{},
+				EncryptAlgorithm: aes,
+				SignAlgorithm:    signing.NewED25519FromSeed(sKey),
             },
-        }
+        },
     })
 }
 ```
@@ -70,5 +63,6 @@ whether the value is actually `nil` instead of whatever concrete type it would o
 
 ## Acknowledgements
 
-As a library with similar goals and implementation, some code is very similar to github.com/pkasila/gorm-crypto, which is an older library with more
-maintainers. If you don't need the advanced features offered here, please use that fine library instead!
+As a library with similar goals and implementation, some code is very similar to
+[github.com/pkasila/gorm-crypto](https://pkg.go.dev/github.com/pkasila/gorm-crypto), which is an older library with more maintainers. If you don't
+need the advanced features offered here, please use that fine library instead!

@@ -1,26 +1,14 @@
 package gorm_crypto
 
-import (
-	"database/sql/driver"
-
-	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
-)
+import "database/sql/driver"
 
 type EncryptedRuneSlice struct {
+	Field
 	Raw []rune
 }
 
-func (EncryptedRuneSlice) GormDataType() string {
-	return baseType
-}
-
-func (EncryptedRuneSlice) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
-}
-
 func (s *EncryptedRuneSlice) Scan(value interface{}) error {
-	return decrypt(value.([]byte), s.Raw)
+	return decrypt(value.([]byte), &s.Raw)
 }
 
 func (s EncryptedRuneSlice) Value() (driver.Value, error) {
@@ -28,16 +16,9 @@ func (s EncryptedRuneSlice) Value() (driver.Value, error) {
 }
 
 type NullEncryptedRuneSlice struct {
+	Field
 	Raw   []rune
 	Empty bool
-}
-
-func (NullEncryptedRuneSlice) GormDataType() string {
-	return baseType
-}
-
-func (NullEncryptedRuneSlice) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *NullEncryptedRuneSlice) Scan(value interface{}) error {
@@ -47,7 +28,7 @@ func (s *NullEncryptedRuneSlice) Scan(value interface{}) error {
 		return nil
 	}
 
-	return decrypt(value.([]byte), s.Raw)
+	return decrypt(value.([]byte), &s.Raw)
 }
 
 func (s NullEncryptedRuneSlice) Value() (driver.Value, error) {
@@ -59,16 +40,9 @@ func (s NullEncryptedRuneSlice) Value() (driver.Value, error) {
 }
 
 type SignedRuneSlice struct {
+	Field
 	Raw   []rune
 	Valid bool
-}
-
-func (SignedRuneSlice) GormDataType() string {
-	return baseType
-}
-
-func (SignedRuneSlice) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *SignedRuneSlice) Scan(value interface{}) (err error) {
@@ -82,24 +56,17 @@ func (s SignedRuneSlice) Value() (driver.Value, error) {
 }
 
 type NullSignedRuneSlice struct {
+	Field
 	Raw   []rune
 	Empty bool
 	Valid bool
-}
-
-func (NullSignedRuneSlice) GormDataType() string {
-	return baseType
-}
-
-func (NullSignedRuneSlice) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *NullSignedRuneSlice) Scan(value interface{}) (err error) {
 	if value == nil {
 		s.Raw = []rune{}
 		s.Empty = true
-		s.Valid = false
+		s.Valid = true
 		return nil
 	}
 
@@ -117,16 +84,9 @@ func (s NullSignedRuneSlice) Value() (driver.Value, error) {
 }
 
 type SignedEncryptedRuneSlice struct {
+	Field
 	Raw   []rune
 	Valid bool
-}
-
-func (SignedEncryptedRuneSlice) GormDataType() string {
-	return baseType
-}
-
-func (SignedEncryptedRuneSlice) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *SignedEncryptedRuneSlice) Scan(value interface{}) (err error) {
@@ -140,24 +100,17 @@ func (s SignedEncryptedRuneSlice) Value() (driver.Value, error) {
 }
 
 type NullSignedEncryptedRuneSlice struct {
+	Field
 	Raw   []rune
 	Empty bool
 	Valid bool
-}
-
-func (NullSignedEncryptedRuneSlice) GormDataType() string {
-	return baseType
-}
-
-func (NullSignedEncryptedRuneSlice) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *NullSignedEncryptedRuneSlice) Scan(value interface{}) (err error) {
 	if value == nil {
 		s.Raw = []rune{}
 		s.Empty = true
-		s.Valid = false
+		s.Valid = true
 		return nil
 	}
 

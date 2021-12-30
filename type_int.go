@@ -1,26 +1,14 @@
 package gorm_crypto
 
-import (
-	"database/sql/driver"
-
-	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
-)
+import "database/sql/driver"
 
 type EncryptedInt struct {
+	Field
 	Raw int
 }
 
-func (EncryptedInt) GormDataType() string {
-	return baseType
-}
-
-func (EncryptedInt) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
-}
-
 func (s *EncryptedInt) Scan(value interface{}) error {
-	return decrypt(value.([]byte), s.Raw)
+	return decrypt(value.([]byte), &s.Raw)
 }
 
 func (s EncryptedInt) Value() (driver.Value, error) {
@@ -28,16 +16,9 @@ func (s EncryptedInt) Value() (driver.Value, error) {
 }
 
 type NullEncryptedInt struct {
+	Field
 	Raw   int
 	Empty bool
-}
-
-func (NullEncryptedInt) GormDataType() string {
-	return baseType
-}
-
-func (NullEncryptedInt) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *NullEncryptedInt) Scan(value interface{}) error {
@@ -47,7 +28,7 @@ func (s *NullEncryptedInt) Scan(value interface{}) error {
 		return nil
 	}
 
-	return decrypt(value.([]byte), s.Raw)
+	return decrypt(value.([]byte), &s.Raw)
 }
 
 func (s NullEncryptedInt) Value() (driver.Value, error) {
@@ -59,16 +40,9 @@ func (s NullEncryptedInt) Value() (driver.Value, error) {
 }
 
 type SignedInt struct {
+	Field
 	Raw   int
 	Valid bool
-}
-
-func (SignedInt) GormDataType() string {
-	return baseType
-}
-
-func (SignedInt) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *SignedInt) Scan(value interface{}) (err error) {
@@ -82,24 +56,17 @@ func (s SignedInt) Value() (driver.Value, error) {
 }
 
 type NullSignedInt struct {
+	Field
 	Raw   int
 	Empty bool
 	Valid bool
-}
-
-func (NullSignedInt) GormDataType() string {
-	return baseType
-}
-
-func (NullSignedInt) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *NullSignedInt) Scan(value interface{}) (err error) {
 	if value == nil {
 		s.Raw = 0
 		s.Empty = true
-		s.Valid = false
+		s.Valid = true
 		return nil
 	}
 
@@ -117,16 +84,9 @@ func (s NullSignedInt) Value() (driver.Value, error) {
 }
 
 type SignedEncryptedInt struct {
+	Field
 	Raw   int
 	Valid bool
-}
-
-func (SignedEncryptedInt) GormDataType() string {
-	return baseType
-}
-
-func (SignedEncryptedInt) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *SignedEncryptedInt) Scan(value interface{}) (err error) {
@@ -140,24 +100,17 @@ func (s SignedEncryptedInt) Value() (driver.Value, error) {
 }
 
 type NullSignedEncryptedInt struct {
+	Field
 	Raw   int
 	Empty bool
 	Valid bool
-}
-
-func (NullSignedEncryptedInt) GormDataType() string {
-	return baseType
-}
-
-func (NullSignedEncryptedInt) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *NullSignedEncryptedInt) Scan(value interface{}) (err error) {
 	if value == nil {
 		s.Raw = 0
 		s.Empty = true
-		s.Valid = false
+		s.Valid = true
 		return nil
 	}
 

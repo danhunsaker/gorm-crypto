@@ -3,25 +3,15 @@ package gorm_crypto
 import (
 	"database/sql/driver"
 	"time"
-
-	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
 )
 
 type EncryptedTime struct {
+	Field
 	Raw time.Time
 }
 
-func (EncryptedTime) GormDataType() string {
-	return baseType
-}
-
-func (EncryptedTime) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
-}
-
 func (s *EncryptedTime) Scan(value interface{}) error {
-	return decrypt(value.([]byte), s.Raw)
+	return decrypt(value.([]byte), &s.Raw)
 }
 
 func (s EncryptedTime) Value() (driver.Value, error) {
@@ -29,16 +19,9 @@ func (s EncryptedTime) Value() (driver.Value, error) {
 }
 
 type NullEncryptedTime struct {
+	Field
 	Raw   time.Time
 	Empty bool
-}
-
-func (NullEncryptedTime) GormDataType() string {
-	return baseType
-}
-
-func (NullEncryptedTime) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *NullEncryptedTime) Scan(value interface{}) error {
@@ -48,7 +31,7 @@ func (s *NullEncryptedTime) Scan(value interface{}) error {
 		return nil
 	}
 
-	return decrypt(value.([]byte), s.Raw)
+	return decrypt(value.([]byte), &s.Raw)
 }
 
 func (s NullEncryptedTime) Value() (driver.Value, error) {
@@ -60,16 +43,9 @@ func (s NullEncryptedTime) Value() (driver.Value, error) {
 }
 
 type SignedTime struct {
+	Field
 	Raw   time.Time
 	Valid bool
-}
-
-func (SignedTime) GormDataType() string {
-	return baseType
-}
-
-func (SignedTime) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *SignedTime) Scan(value interface{}) (err error) {
@@ -83,24 +59,17 @@ func (s SignedTime) Value() (driver.Value, error) {
 }
 
 type NullSignedTime struct {
+	Field
 	Raw   time.Time
 	Empty bool
 	Valid bool
-}
-
-func (NullSignedTime) GormDataType() string {
-	return baseType
-}
-
-func (NullSignedTime) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *NullSignedTime) Scan(value interface{}) (err error) {
 	if value == nil {
 		s.Raw = time.Time{}
 		s.Empty = true
-		s.Valid = false
+		s.Valid = true
 		return nil
 	}
 
@@ -118,16 +87,9 @@ func (s NullSignedTime) Value() (driver.Value, error) {
 }
 
 type SignedEncryptedTime struct {
+	Field
 	Raw   time.Time
 	Valid bool
-}
-
-func (SignedEncryptedTime) GormDataType() string {
-	return baseType
-}
-
-func (SignedEncryptedTime) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *SignedEncryptedTime) Scan(value interface{}) (err error) {
@@ -141,24 +103,17 @@ func (s SignedEncryptedTime) Value() (driver.Value, error) {
 }
 
 type NullSignedEncryptedTime struct {
+	Field
 	Raw   time.Time
 	Empty bool
 	Valid bool
-}
-
-func (NullSignedEncryptedTime) GormDataType() string {
-	return baseType
-}
-
-func (NullSignedEncryptedTime) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	return serverType(db, field)
 }
 
 func (s *NullSignedEncryptedTime) Scan(value interface{}) (err error) {
 	if value == nil {
 		s.Raw = time.Time{}
 		s.Empty = true
-		s.Valid = false
+		s.Valid = true
 		return nil
 	}
 

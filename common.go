@@ -31,6 +31,9 @@ type Setup struct {
 	SignAlgorithm    signing.Algorithm
 }
 
+// Field defines some common features of every supported type, specifically those which are implemented the same way on every type.
+type Field struct{}
+
 // Init sets up gorm-crypto for use by telling it which Config to use.
 // NOTE: This function may be deprecated at some point if I can work out how to properly make gorm-crypto into a GORM plugin.
 func Init(c Config) error {
@@ -42,18 +45,11 @@ func Init(c Config) error {
 	return nil
 }
 
-// PRIVATE
-
-const baseType = "blob"
-
-type internalStruct struct {
-	Raw       []byte
-	Signature []byte
+func (Field) GormDataType() string {
+	return "blob"
 }
 
-var config Config
-
-func serverType(db *gorm.DB, field *schema.Field) string {
+func (Field) GormDBDataType(db *gorm.DB, field *schema.Field) string {
 	switch db.Dialector.Name() {
 	case "bigquery":
 		return "BYTES"
@@ -70,6 +66,15 @@ func serverType(db *gorm.DB, field *schema.Field) string {
 	}
 	return ""
 }
+
+// PRIVATE
+
+type internalStruct struct {
+	Raw       []byte
+	Signature []byte
+}
+
+var config Config
 
 func decrypt(source []byte, dest interface{}) error {
 	var err error
