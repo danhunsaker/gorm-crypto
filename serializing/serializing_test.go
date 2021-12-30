@@ -235,12 +235,14 @@ func runTest(t *testing.T, serializer serializing.Algorithm, expected, actual in
 
 	var equal bool
 	switch actual := actual.(type) {
-	case testStruct, []rune:
+	case []rune:
 		equal = reflect.DeepEqual(actual, expected)
 	case []byte:
 		equal = bytes.Equal(actual, expected.([]byte))
 	case time.Time:
 		equal = actual.Equal(expected.(time.Time))
+	case testStruct:
+		equal = actual.Equal(expected.(testStruct))
 	default:
 		equal = (actual == expected)
 	}
@@ -262,6 +264,7 @@ type testStruct struct {
 	Uint      uint64
 }
 
+// Equal ::: Struct
 func (actual testStruct) Equal(expected testStruct) bool {
 	return actual.Bool == expected.Bool &&
 		bytes.Equal(actual.ByteSlice, expected.ByteSlice) &&

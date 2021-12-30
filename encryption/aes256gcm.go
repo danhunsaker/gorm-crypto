@@ -8,15 +8,18 @@ import (
 	"io"
 )
 
+// AES256GCM supports AES256GCM
 type AES256GCM struct {
 	Algorithm
 	aead cipher.AEAD
 }
 
+// NewAES creates a new AES value
 func NewAES(key string) (*AES256GCM, error) {
 	return NewAES256(key)
 }
 
+// NewAES256 creates a new AES256 value
 func NewAES256(key string) (*AES256GCM, error) {
 	return NewAES256GCM(key)
 }

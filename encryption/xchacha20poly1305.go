@@ -9,6 +9,7 @@ import (
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
+// XChaCha20Poly1305 supports XChaCha20Poly1305
 type XChaCha20Poly1305 struct {
 	Algorithm
 	aead cipher.AEAD

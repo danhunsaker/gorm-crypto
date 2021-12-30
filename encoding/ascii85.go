@@ -5,12 +5,14 @@ import (
 	"encoding/ascii85"
 )
 
+// ASCII85 supports ASCII85
 type ASCII85 struct {
 	Algorithm
 }
 
 const blockSize = 4
 
+// Encode ::: ASCII85
 func (a ASCII85) Encode(raw []byte) ([]byte, error) {
 	padded := 0
 
@@ -25,6 +27,7 @@ func (a ASCII85) Encode(raw []byte) ([]byte, error) {
 	return encoded, nil
 }
 
+// Decode ::: ASCII85
 func (a ASCII85) Decode(encoded []byte) ([]byte, error) {
 	decoded := make([]byte, len(encoded)-1)
 	trimTo, _, err := ascii85.Decode(decoded, encoded[1:], true)

@@ -1,4 +1,4 @@
-package gorm_crypto_test
+package gc_test
 
 import (
 	"testing"

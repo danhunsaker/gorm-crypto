@@ -4,12 +4,14 @@ import (
 	"crypto/ed25519"
 )
 
+// ED25519 supports ED25519
 type ED25519 struct {
 	Algorithm
 	private *ed25519.PrivateKey
 	public  *ed25519.PublicKey
 }
 
+// NewED25519 creates a new ED25519 value
 func NewED25519(privateKey *ed25519.PrivateKey, publicKey *ed25519.PublicKey) *ED25519 {
 	return &ED25519{
 		private: privateKey,
@@ -17,6 +19,7 @@ func NewED25519(privateKey *ed25519.PrivateKey, publicKey *ed25519.PublicKey) *E
 	}
 }
 
+// NewED25519FromSeed creates a new ED25519FromSeed value
 func NewED25519FromSeed(seed string) *ED25519 {
 	privateKey := ed25519.NewKeyFromSeed([]byte(seed))
 	publicKey := privateKey.Public().(ed25519.PublicKey)
@@ -27,10 +30,12 @@ func NewED25519FromSeed(seed string) *ED25519 {
 	}
 }
 
+// Sign ::: ED25519
 func (s *ED25519) Sign(plain []byte) ([]byte, error) {
 	return ed25519.Sign(*s.private, plain), nil
 }
 
+// Verify ::: ED25519
 func (s *ED25519) Verify(plain []byte, signature []byte) (bool, error) {
 	return ed25519.Verify(*s.public, plain, signature), nil
 }

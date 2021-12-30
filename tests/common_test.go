@@ -1,4 +1,4 @@
-package gorm_crypto_test
+package gc_test
 
 import (
 	"bytes"
@@ -88,6 +88,7 @@ type testStruct struct {
 	Gender *rune
 }
 
+// Equals ::: Struct
 func (actual testStruct) Equals(expected testStruct) bool {
 	return actual.Name == expected.Name && actual.Age == expected.Age && *actual.Gender == *expected.Gender
 }

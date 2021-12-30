@@ -1,4 +1,4 @@
-package gorm_crypto
+package gc
 
 import (
 	"database/sql/driver"
@@ -45,10 +45,12 @@ func Init(c Config) error {
 	return nil
 }
 
+// GormDataType indicates the default type hint for GORM to use in migrations
 func (Field) GormDataType() string {
 	return "blob"
 }
 
+// GormDBDataType indicates the actual type hint for GORM to use in migrations, based on the connected server dialect
 func (Field) GormDBDataType(db *gorm.DB, field *schema.Field) string {
 	switch db.Dialector.Name() {
 	case "bigquery":

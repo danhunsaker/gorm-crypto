@@ -6,12 +6,14 @@ import (
 	"crypto/sha512"
 )
 
+// RSA supports RSA
 type RSA struct {
 	Algorithm
 	privateKey *rsa.PrivateKey
 	publicKey  *rsa.PublicKey
 }
 
+// NewRSA creates a new RSA value
 func NewRSA(privateKey *rsa.PrivateKey, publicKey *rsa.PublicKey) *RSA {
 	return &RSA{
 		privateKey: privateKey,

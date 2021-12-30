@@ -9,11 +9,13 @@ import (
 	"io"
 )
 
+// AES256CBC supports AES256CBC
 type AES256CBC struct {
 	Algorithm
 	block cipher.Block
 }
 
+// NewAES256CBC creates a new AES256CBC value
 func NewAES256CBC(key string) (*AES256CBC, error) {
 	if len(key) != 32 {
 		return nil, errors.New("key length MUST be 32 bytes for AES256")
