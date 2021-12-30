@@ -1,4 +1,4 @@
-package gc
+package gormcrypto
 
 import (
 	"database/sql/driver"

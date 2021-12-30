@@ -1,6 +1,7 @@
+// Package encoding defines the various encoding Algorithms supported by the gormcrypto package
 package encoding
 
-// Algorithm is a bad name for the core interface all gorm-crypto encodings implement. The name was chosen for consistency more than anything.
+// Algorithm is a bad name for the core interface all gormcrypto encodings implement. The name was chosen for consistency more than anything.
 // A type implementing encoding.Algorithm will convert a value between its raw binary and encoded text forms, in a manner consistent with its type.
 // The types implemented here wrap the Go standard library's various encoding packages.
 type Algorithm interface {

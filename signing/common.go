@@ -1,6 +1,7 @@
+// Package signing defines the various signing Algorithms supported by the gormcrypto package
 package signing
 
-// Algorithm defines an interface that signing types must implement to be usable with gorm-crypto.
+// Algorithm defines an interface that signing types must implement to be usable with gormcrypto.
 // A type implementing signing.Algorithm will supplement a value's' serialized representation with a cryptographic signature, or verify the same.
 // The types implemented here wrap the Go standard (and extended) library's various (non-deprecated) crypto packages.
 type Algorithm interface {

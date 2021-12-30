@@ -1,4 +1,4 @@
-# gorm-crypto
+# gormcrypto
 
 Another library for encrypting/signing data with GORM
 

@@ -1,4 +1,5 @@
-package gc
+// Package gormcrypto is another library for encrypting/signing data with GORM
+package gormcrypto
 
 import (
 	"database/sql/driver"
@@ -12,7 +13,7 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-// Config provides the global configuration data for gorm-crypto.
+// Config provides the global configuration data for gormcrypto.
 // At the moment, that's just a list of different Setups your application supports.
 // We support multiple Setups because application requirements change over time,
 // and you'll want to be able to use values encrypted/signed by older keys/algorithms.
@@ -21,7 +22,7 @@ type Config struct {
 	Setups []Setup
 }
 
-// Setup describes the way your data should be handled by gorm-crypto.
+// Setup describes the way your data should be handled by gormcrypto.
 // That includes the encryption algorithm/keys, the signing algorithm/keys,
 // the mechanism for serializing values, and the encoding to use to coerce binary data into values that can safely be serialized/stored.
 type Setup struct {
@@ -34,8 +35,8 @@ type Setup struct {
 // Field defines some common features of every supported type, specifically those which are implemented the same way on every type.
 type Field struct{}
 
-// Init sets up gorm-crypto for use by telling it which Config to use.
-// NOTE: This function may be deprecated at some point if I can work out how to properly make gorm-crypto into a GORM plugin.
+// Init sets up gormcrypto for use by telling it which Config to use.
+// NOTE: This function may be deprecated at some point if I can work out how to properly make gormcrypto into a GORM plugin.
 func Init(c Config) error {
 	if len(c.Setups) < 1 {
 		return errors.New("database cryptography configuration incomplete")

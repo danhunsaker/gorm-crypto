@@ -1,4 +1,4 @@
-package gc_test
+package gormcrypto_test
 
 import (
 	"bytes"

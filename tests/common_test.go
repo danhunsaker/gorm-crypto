@@ -1,4 +1,5 @@
-package gc_test
+// Package gormcrypto_test houses the tests for the various types defined by the gormcrypto package
+package gormcrypto_test
 
 import (
 	"bytes"
