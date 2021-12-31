@@ -1,5 +1,16 @@
 # gormcrypto
 
+![GitHub license](https://img.shields.io/github/license/danhunsaker/gorm-crypto)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/danhunsaker/gorm-crypto)
+![GitHub Sponsors](https://img.shields.io/github/sponsors/danhunsaker)
+![Liberapay patrons](https://img.shields.io/liberapay/patrons/danhunsaker)
+
+![GitHub commits since latest release (by SemVer)](https://img.shields.io/github/commits-since/danhunsaker/gorm-crypto/latest?sort=semver)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/danhunsaker/gorm-crypto/CI)
+[![Go Report Card](https://goreportcard.com/badge/github.com/danhunsaker/gorm-crypto)](https://goreportcard.com/report/github.com/danhunsaker/gorm-crypto)
+![Scrutinizer coverage](https://img.shields.io/scrutinizer/coverage/g/danhunsaker/gorm-crypto)
+![Scrutinizer code quality](https://img.shields.io/scrutinizer/quality/g/danhunsaker/gorm-crypto)
+
 Another library for encrypting/signing data with GORM
 
 ## Usage
