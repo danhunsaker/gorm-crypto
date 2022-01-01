@@ -29,22 +29,24 @@ func TestEncryption(t *testing.T) {
 		encryption.NewRSA(rsaPriv, &rsaPriv.PublicKey),
 		suppressError(encryption.NewXChaCha20Poly1305(string(singleKey))),
 	} {
-		size, _ := rand.Int(rand.Reader, big.NewInt(64))
-		expected := make([]byte, size.Int64())
-		rand.Read(expected)
+		t.Run(reflect.TypeOf(crypto).String(), func(t *testing.T) {
+			size, _ := rand.Int(rand.Reader, big.NewInt(64))
+			expected := make([]byte, size.Int64())
+			rand.Read(expected)
 
-		crypted, err := crypto.Encrypt(expected)
-		if err != nil {
-			t.Error(err)
-		}
-		actual, err := crypto.Decrypt(crypted)
-		if err != nil {
-			t.Error(err)
-		}
+			crypted, err := crypto.Encrypt(expected)
+			if err != nil {
+				t.Error(err)
+			}
+			actual, err := crypto.Decrypt(crypted)
+			if err != nil {
+				t.Error(err)
+			}
 
-		if !bytes.Equal(actual, expected) {
-			t.Errorf("%s: Expected %v; got %v instead", reflect.TypeOf(crypto).String(), expected, actual)
-		}
+			if !bytes.Equal(actual, expected) {
+				t.Errorf("Expected %v; got %v instead", expected, actual)
+			}
+		})
 	}
 }
 

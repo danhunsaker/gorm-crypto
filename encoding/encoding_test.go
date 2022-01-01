@@ -18,21 +18,23 @@ func TestEncoding(t *testing.T) {
 		encoding.Hex{},
 		encoding.PEM{},
 	} {
-		size, _ := rand.Int(rand.Reader, big.NewInt(64))
-		expected := make([]byte, size.Int64())
-		rand.Read(expected)
+		t.Run(reflect.TypeOf(encoder).String(), func(t *testing.T) {
+			size, _ := rand.Int(rand.Reader, big.NewInt(64))
+			expected := make([]byte, size.Int64())
+			rand.Read(expected)
 
-		encoded, err := encoder.Encode(expected)
-		if err != nil {
-			t.Error(err)
-		}
-		actual, err := encoder.Decode(encoded)
-		if err != nil {
-			t.Error(err)
-		}
+			encoded, err := encoder.Encode(expected)
+			if err != nil {
+				t.Error(err)
+			}
+			actual, err := encoder.Decode(encoded)
+			if err != nil {
+				t.Error(err)
+			}
 
-		if !bytes.Equal(actual, expected) {
-			t.Errorf("%s: Expected %v; got %v instead", reflect.TypeOf(encoder).String(), expected, actual)
-		}
+			if !bytes.Equal(actual, expected) {
+				t.Errorf("Expected %v; got %v instead", expected, actual)
+			}
+		})
 	}
 }

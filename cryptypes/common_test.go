@@ -9,6 +9,7 @@ import (
 	"database/sql/driver"
 	"encoding/binary"
 	"os"
+	"reflect"
 	"testing"
 	"time"
 
@@ -48,11 +49,13 @@ func TestGormDBDataType(t *testing.T) {
 	}
 
 	for dialector, expected := range testDialectors {
-		testGorm := gorm.DB{Config: &gorm.Config{Dialector: dialector}}
+		t.Run(reflect.TypeOf(dialector).String(), func(t *testing.T) {
+			testGorm := gorm.DB{Config: &gorm.Config{Dialector: dialector}}
 
-		if actual := f.GormDBDataType(&testGorm, &schema.Field{}); actual != expected {
-			t.Errorf(`Expected data type "%s"; got "%s"`, expected, actual)
-		}
+			if actual := f.GormDBDataType(&testGorm, &schema.Field{}); actual != expected {
+				t.Errorf(`Expected data type "%s"; got "%s"`, expected, actual)
+			}
+		})
 	}
 }
 

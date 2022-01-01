@@ -24,21 +24,23 @@ func TestSigning(t *testing.T) {
 		signing.NewED25519(&ed25519Priv, &ed25519Pub),
 		signing.NewED25519FromSeed(string(singleKey)),
 	} {
-		size, _ := rand.Int(rand.Reader, big.NewInt(64))
-		expected := make([]byte, size.Int64())
-		rand.Read(expected)
+		t.Run(reflect.TypeOf(signer).String(), func(t *testing.T) {
+			size, _ := rand.Int(rand.Reader, big.NewInt(64))
+			expected := make([]byte, size.Int64())
+			rand.Read(expected)
 
-		signed, err := signer.Sign(expected)
-		if err != nil {
-			t.Error(err)
-		}
-		matches, err := signer.Verify(expected, signed)
-		if err != nil {
-			t.Error(err)
-		}
+			signed, err := signer.Sign(expected)
+			if err != nil {
+				t.Error(err)
+			}
+			matches, err := signer.Verify(expected, signed)
+			if err != nil {
+				t.Error(err)
+			}
 
-		if !matches {
-			t.Errorf("%s: Signature did not verify", reflect.TypeOf(signer).String())
-		}
+			if !matches {
+				t.Error("Signature did not verify")
+			}
+		})
 	}
 }
