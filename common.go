@@ -4,6 +4,8 @@ package gormcrypto
 import (
 	"database/sql/driver"
 	"errors"
+	"fmt"
+	"reflect"
 	"sort"
 	"time"
 
@@ -62,13 +64,23 @@ func (c *Config) UsedSetup(at time.Time) Setup {
 	sort.Slice(keys, func(i, j int) bool {
 		return keys[i].Before(keys[j])
 	})
+
+	filtered := make([]time.Time, 0)
 	for _, t := range keys {
-		if at.After(t) {
-			return c.Setups[t]
+		if at.Equal(t) || at.After(t) {
+			filtered = append(filtered, t)
 		}
+	}
+	if len(filtered) > 0 {
+		return c.Setups[filtered[len(filtered)-1]]
 	}
 
 	return c.Setups[keys[len(keys)-1]]
+}
+
+// String converts the Setup to a string that indicates its components in a useful fashion
+func (s Setup) String() string {
+	return fmt.Sprintf("{%s %s %s %s}", reflect.TypeOf(s.Encoder).String(), reflect.TypeOf(s.Serializer).String(), reflect.TypeOf(s.EncryptAlgorithm).String(), reflect.TypeOf(s.SignAlgorithm).String())
 }
 
 // GormDataType indicates the default type hint for GORM to use in migrations
@@ -112,7 +124,7 @@ func decrypt(source []byte, dest interface{}) error {
 
 	for _, setup := range config.Setups {
 		err = setup.Serializer.Unserialize(source, &in)
-		if err != nil {
+		if err == nil {
 			break
 		}
 	}
@@ -235,7 +247,7 @@ func decryptVerify(source []byte, dest interface{}) (bool, error) {
 
 	for _, setup := range config.Setups {
 		err = setup.Serializer.Unserialize(source, &signed)
-		if err != nil {
+		if err == nil {
 			break
 		}
 	}

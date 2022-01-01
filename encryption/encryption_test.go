@@ -20,6 +20,8 @@ func TestEncryption(t *testing.T) {
 	rand.Read(singleKey)
 
 	for _, crypto := range []encryption.Algorithm{
+		suppressError(encryption.NewAES(string(singleKey))),
+		suppressError(encryption.NewAES256(string(singleKey))),
 		suppressError(encryption.NewAES256CBC(string(singleKey))),
 		suppressError(encryption.NewAES256GCM(string(singleKey))),
 		suppressError(encryption.NewChaCha20Poly1305(string(singleKey))),

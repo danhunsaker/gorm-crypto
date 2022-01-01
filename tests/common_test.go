@@ -3,6 +3,9 @@ package gormcrypto_test
 
 import (
 	"bytes"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"database/sql/driver"
 	"encoding/binary"
 	"os"
@@ -58,18 +61,40 @@ func TestMain(m *testing.M) {
 	var eKey = "EncryptionKeyThatShouldBe32Bytes"
 	var sKey = "SigningKeyThatShouldBe32BytesToo"
 
+	xchacha, err := encryption.NewXChaCha20Poly1305(eKey)
+	if err != nil {
+		panic(err)
+	}
+
 	aes, err := encryption.NewAES256GCM(eKey)
+	if err != nil {
+		panic(err)
+	}
+
+	ecdsaKey, err := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
 	if err != nil {
 		panic(err)
 	}
 
 	config = gc.Config{
 		Setups: map[time.Time]gc.Setup{
-			time.Now(): {
+			time.Now().Add(-1 * time.Minute): {
 				Encoder:          encoding.Base64{},
 				Serializer:       serializing.JSON{},
-				EncryptAlgorithm: aes,
+				EncryptAlgorithm: xchacha,
 				SignAlgorithm:    signing.NewED25519FromSeed(sKey),
+			},
+			time.Now().Add(1 * time.Hour): {
+				Encoder:          encoding.Hex{},
+				Serializer:       serializing.GOB{},
+				EncryptAlgorithm: aes,
+				SignAlgorithm:    signing.NewECDSA(ecdsaKey, &ecdsaKey.PublicKey),
+			},
+			time.Now().Add(-1 * time.Hour): {
+				Encoder:          encoding.Hex{},
+				Serializer:       serializing.GOB{},
+				EncryptAlgorithm: aes,
+				SignAlgorithm:    signing.NewECDSA(ecdsaKey, &ecdsaKey.PublicKey),
 			},
 		},
 	}
