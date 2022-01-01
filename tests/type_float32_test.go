@@ -225,7 +225,7 @@ func TestSignedEncryptedFloat32Tampered(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = actual.Scan(tamperWith(signed, suppressError(gc.EncryptedFloat32{}.Value())))
+	err = actual.Scan(tamperWith(signed, unwrapValue(gc.EncryptedFloat32{})))
 	if err != nil {
 		t.Error(err)
 	}
@@ -274,7 +274,7 @@ func TestNullSignedEncryptedFloat32Tampered(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = actual.Scan(tamperWith(signed, suppressError(gc.EncryptedFloat32{}.Value())))
+	err = actual.Scan(tamperWith(signed, unwrapValue(gc.EncryptedFloat32{})))
 	if err != nil {
 		t.Error(err)
 	}

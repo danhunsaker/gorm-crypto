@@ -262,7 +262,7 @@ func TestSignedEncryptedAnyTampered(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = actual.Scan(tamperWith(signed, suppressError(gc.EncryptedAny{Raw: testStruct{}}.Value())))
+	err = actual.Scan(tamperWith(signed, unwrapValue(gc.EncryptedAny{Raw: testStruct{}})))
 	if err != nil {
 		t.Error(err)
 	}
@@ -317,7 +317,7 @@ func TestNullSignedEncryptedAnyTampered(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = actual.Scan(tamperWith(signed, suppressError(gc.EncryptedAny{Raw: testStruct{}}.Value())))
+	err = actual.Scan(tamperWith(signed, unwrapValue(gc.EncryptedAny{Raw: testStruct{}})))
 	if err != nil {
 		t.Error(err)
 	}

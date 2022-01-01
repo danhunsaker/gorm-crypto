@@ -7,6 +7,7 @@ import (
 	"encoding/binary"
 	"os"
 	"testing"
+	"time"
 
 	gc "github.com/danhunsaker/gorm-crypto"
 	"github.com/danhunsaker/gorm-crypto/encoding"
@@ -22,6 +23,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
+
+var config gc.Config
 
 func TestGormDataType(t *testing.T) {
 	f := gc.Field{}
@@ -60,16 +63,17 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	gc.Init(gc.Config{
-		Setups: []gc.Setup{
-			{
+	config = gc.Config{
+		Setups: map[time.Time]gc.Setup{
+			time.Now(): {
 				Encoder:          encoding.Base64{},
 				Serializer:       serializing.JSON{},
 				EncryptAlgorithm: aes,
 				SignAlgorithm:    signing.NewED25519FromSeed(sKey),
 			},
 		},
-	})
+	}
+	gc.Init(config)
 
 	result := m.Run()
 
@@ -81,6 +85,7 @@ func TestMain(m *testing.M) {
 type internalStruct struct {
 	Raw       []byte
 	Signature []byte
+	At        time.Time
 }
 
 type testStruct struct {
@@ -97,17 +102,17 @@ func (actual testStruct) Equals(expected testStruct) bool {
 func tamperWith(signed driver.Value, attack []byte) []byte {
 	var unserial internalStruct
 
-	serializing.JSON{}.Unserialize(signed.([]byte), &unserial)
+	config.CurrentSetup().Serializer.Unserialize(signed.([]byte), &unserial)
 
 	unserial.Raw = attack
 
-	reserial, _ := serializing.JSON{}.Serialize(unserial)
+	reserial, _ := config.CurrentSetup().Serializer.Serialize(unserial)
 
 	return reserial
 }
 
 func rawValue(in interface{}) []byte {
-	serial, _ := serializing.JSON{}.Serialize(in)
+	serial, _ := config.CurrentSetup().Serializer.Serialize(in)
 
 	return serial
 }
@@ -115,9 +120,17 @@ func rawValue(in interface{}) []byte {
 func rawComplexValue(in interface{}) []byte {
 	var bin bytes.Buffer
 	binary.Write(&bin, binary.LittleEndian, in)
-	serial, _ := serializing.JSON{}.Serialize(bin.Bytes())
+	serial, _ := config.CurrentSetup().Serializer.Serialize(bin.Bytes())
 
 	return serial
+}
+
+func unwrapValue(in driver.Valuer) []byte {
+	var out internalStruct
+	wrapped := suppressError(in.Value())
+	config.CurrentSetup().Serializer.Unserialize(wrapped, &out)
+
+	return out.Raw
 }
 
 func suppressError(in driver.Value, ignore error) []byte {

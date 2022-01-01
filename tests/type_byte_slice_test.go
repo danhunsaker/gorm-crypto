@@ -226,7 +226,7 @@ func TestSignedEncryptedByteSliceTampered(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = actual.Scan(tamperWith(signed, suppressError(gc.EncryptedByteSlice{}.Value())))
+	err = actual.Scan(tamperWith(signed, unwrapValue(gc.EncryptedByteSlice{})))
 	if err != nil {
 		t.Error(err)
 	}
@@ -275,7 +275,7 @@ func TestNullSignedEncryptedByteSliceTampered(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = actual.Scan(tamperWith(signed, suppressError(gc.EncryptedByteSlice{}.Value())))
+	err = actual.Scan(tamperWith(signed, unwrapValue(gc.EncryptedByteSlice{})))
 	if err != nil {
 		t.Error(err)
 	}

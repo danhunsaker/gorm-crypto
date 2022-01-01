@@ -226,7 +226,7 @@ func TestSignedEncryptedRuneSliceTampered(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = actual.Scan(tamperWith(signed, suppressError(gc.EncryptedRuneSlice{}.Value())))
+	err = actual.Scan(tamperWith(signed, unwrapValue(gc.EncryptedRuneSlice{})))
 	if err != nil {
 		t.Error(err)
 	}
@@ -275,7 +275,7 @@ func TestNullSignedEncryptedRuneSliceTampered(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = actual.Scan(tamperWith(signed, suppressError(gc.EncryptedRuneSlice{}.Value())))
+	err = actual.Scan(tamperWith(signed, unwrapValue(gc.EncryptedRuneSlice{})))
 	if err != nil {
 		t.Error(err)
 	}

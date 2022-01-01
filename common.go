@@ -4,6 +4,8 @@ package gormcrypto
 import (
 	"database/sql/driver"
 	"errors"
+	"sort"
+	"time"
 
 	"github.com/danhunsaker/gorm-crypto/encoding"
 	"github.com/danhunsaker/gorm-crypto/encryption"
@@ -17,9 +19,9 @@ import (
 // At the moment, that's just a list of different Setups your application supports.
 // We support multiple Setups because application requirements change over time,
 // and you'll want to be able to use values encrypted/signed by older keys/algorithms.
-// Be sure to sort your Setups with the current one first, as that's the one used to encrypt/sign your data.
+// The Time value used in the map indicates when the Setup was - or should be - made active in your code.
 type Config struct {
-	Setups []Setup
+	Setups map[time.Time]Setup
 }
 
 // Setup describes the way your data should be handled by gormcrypto.
@@ -44,6 +46,29 @@ func Init(c Config) error {
 	config = c
 
 	return nil
+}
+
+// CurrentSetup returns the most recent Setup value based on the Time it was set up under
+func (c *Config) CurrentSetup() Setup {
+	return c.UsedSetup(time.Now())
+}
+
+// UsedSetup returns the most recent Setup value based on the passed Time, falling back to CurrentSetup
+func (c *Config) UsedSetup(at time.Time) Setup {
+	keys := make([]time.Time, 0, len(c.Setups))
+	for t := range c.Setups {
+		keys = append(keys, t)
+	}
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i].Before(keys[j])
+	})
+	for _, t := range keys {
+		if at.After(t) {
+			return c.Setups[t]
+		}
+	}
+
+	return c.Setups[keys[len(keys)-1]]
 }
 
 // GormDataType indicates the default type hint for GORM to use in migrations
@@ -75,32 +100,39 @@ func (Field) GormDBDataType(db *gorm.DB, field *schema.Field) string {
 type internalStruct struct {
 	Raw       []byte
 	Signature []byte
+	At        time.Time
 }
 
 var config Config
 
 func decrypt(source []byte, dest interface{}) error {
 	var err error
+	var binary, decrypted []byte
+	var in internalStruct
 
 	for _, setup := range config.Setups {
-		var binary, decrypted []byte
-
-		binary, err = setup.Encoder.Decode(source)
+		err = setup.Serializer.Unserialize(source, &in)
 		if err != nil {
-			continue
-		}
-
-		decrypted, err = setup.EncryptAlgorithm.Decrypt(binary)
-		if err != nil {
-			continue
-		}
-
-		err = setup.Serializer.Unserialize(decrypted, &dest)
-		if err == nil {
 			break
 		}
 	}
 	if err != nil {
+		return err
+	}
+	setup := config.UsedSetup(in.At)
+
+	binary, err = setup.Encoder.Decode(in.Raw)
+	if err != nil {
+		return err
+	}
+
+	decrypted, err = setup.EncryptAlgorithm.Decrypt(binary)
+	if err != nil {
+		return err
+	}
+
+	err = setup.Serializer.Unserialize(decrypted, &dest)
+	if err == nil {
 		return err
 	}
 
@@ -108,52 +140,60 @@ func decrypt(source []byte, dest interface{}) error {
 }
 
 func encrypt(value interface{}) (driver.Value, error) {
-	serial, err := config.Setups[0].Serializer.Serialize(value)
+	setup := config.CurrentSetup()
+	out := internalStruct{At: time.Now()}
+
+	serial, err := setup.Serializer.Serialize(value)
 	if err != nil {
 		return nil, err
 	}
 
-	crypted, err := config.Setups[0].EncryptAlgorithm.Encrypt(serial)
+	crypted, err := setup.EncryptAlgorithm.Encrypt(serial)
 	if err != nil {
 		return nil, err
 	}
 
-	encoded, err := config.Setups[0].Encoder.Encode(crypted)
+	out.Raw, err = setup.Encoder.Encode(crypted)
 	if err != nil {
 		return nil, err
 	}
 
-	return encoded, nil
+	result, err := setup.Serializer.Serialize(out)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func verify(source []byte, dest interface{}) (bool, error) {
+	var signed internalStruct
+	var signature []byte
 	var valid bool
 	var err error
 
 	for _, setup := range config.Setups {
-		var signed internalStruct
-		var signature []byte
-
 		err = setup.Serializer.Unserialize(source, &signed)
-		if err != nil {
-			continue
-		}
-
-		signature, err = setup.Encoder.Decode(signed.Signature)
-		if err != nil {
-			continue
-		}
-
-		valid, err = setup.SignAlgorithm.Verify(signed.Raw, signature)
-		if err != nil {
-			continue
-		}
-
-		err = setup.Serializer.Unserialize(signed.Raw, &dest)
 		if err == nil {
 			break
 		}
 	}
+	if err != nil {
+		return false, err
+	}
+	setup := config.UsedSetup(signed.At)
+
+	signature, err = setup.Encoder.Decode(signed.Signature)
+	if err != nil {
+		return false, err
+	}
+
+	valid, err = setup.SignAlgorithm.Verify(signed.Raw, signature)
+	if err != nil {
+		return false, err
+	}
+
+	err = setup.Serializer.Unserialize(signed.Raw, &dest)
 	if err != nil {
 		return false, err
 	}
@@ -162,22 +202,24 @@ func verify(source []byte, dest interface{}) (bool, error) {
 }
 
 func sign(value interface{}) (driver.Value, error) {
-	serial, err := config.Setups[0].Serializer.Serialize(value)
+	setup := config.CurrentSetup()
+
+	serial, err := setup.Serializer.Serialize(value)
 	if err != nil {
 		return nil, err
 	}
 
-	signature, err := config.Setups[0].SignAlgorithm.Sign(serial)
+	signature, err := setup.SignAlgorithm.Sign(serial)
 	if err != nil {
 		return nil, err
 	}
 
-	encoded, err := config.Setups[0].Encoder.Encode(signature)
+	encoded, err := setup.Encoder.Encode(signature)
 	if err != nil {
 		return nil, err
 	}
 
-	signed, err := config.Setups[0].Serializer.Serialize(internalStruct{Raw: serial, Signature: encoded})
+	signed, err := setup.Serializer.Serialize(internalStruct{Raw: serial, Signature: encoded, At: time.Now()})
 	if err != nil {
 		return nil, err
 	}
@@ -186,43 +228,43 @@ func sign(value interface{}) (driver.Value, error) {
 }
 
 func decryptVerify(source []byte, dest interface{}) (bool, error) {
+	var signed internalStruct
+	var decoded, decrypted, signature []byte
 	var valid bool
 	var err error
 
 	for _, setup := range config.Setups {
-		var signed internalStruct
-		var decoded, decrypted, signature []byte
-
 		err = setup.Serializer.Unserialize(source, &signed)
 		if err != nil {
-			continue
-		}
-
-		decoded, err = setup.Encoder.Decode(signed.Raw)
-		if err != nil {
-			continue
-		}
-
-		decrypted, err = setup.EncryptAlgorithm.Decrypt(decoded)
-		if err != nil {
-			continue
-		}
-
-		signature, err = setup.Encoder.Decode(signed.Signature)
-		if err != nil {
-			continue
-		}
-
-		valid, err = setup.SignAlgorithm.Verify(decrypted, signature)
-		if err != nil {
-			continue
-		}
-
-		err = setup.Serializer.Unserialize(decrypted, &dest)
-		if err == nil {
 			break
 		}
 	}
+	if err != nil {
+		return false, err
+	}
+	setup := config.UsedSetup(signed.At)
+
+	decoded, err = setup.Encoder.Decode(signed.Raw)
+	if err != nil {
+		return false, err
+	}
+
+	decrypted, err = setup.EncryptAlgorithm.Decrypt(decoded)
+	if err != nil {
+		return false, err
+	}
+
+	signature, err = setup.Encoder.Decode(signed.Signature)
+	if err != nil {
+		return false, err
+	}
+
+	valid, err = setup.SignAlgorithm.Verify(decrypted, signature)
+	if err != nil {
+		return false, err
+	}
+
+	err = setup.Serializer.Unserialize(decrypted, &dest)
 	if err != nil {
 		return false, err
 	}
@@ -231,32 +273,34 @@ func decryptVerify(source []byte, dest interface{}) (bool, error) {
 }
 
 func encryptSign(value interface{}) (driver.Value, error) {
-	serial, err := config.Setups[0].Serializer.Serialize(value)
+	setup := config.CurrentSetup()
+
+	serial, err := setup.Serializer.Serialize(value)
 	if err != nil {
 		return nil, err
 	}
 
-	crypted, err := config.Setups[0].EncryptAlgorithm.Encrypt(serial)
+	crypted, err := setup.EncryptAlgorithm.Encrypt(serial)
 	if err != nil {
 		return nil, err
 	}
 
-	encodedData, err := config.Setups[0].Encoder.Encode(crypted)
+	encodedData, err := setup.Encoder.Encode(crypted)
 	if err != nil {
 		return nil, err
 	}
 
-	signature, err := config.Setups[0].SignAlgorithm.Sign(serial)
+	signature, err := setup.SignAlgorithm.Sign(serial)
 	if err != nil {
 		return nil, err
 	}
 
-	encodedSign, err := config.Setups[0].Encoder.Encode(signature)
+	encodedSign, err := setup.Encoder.Encode(signature)
 	if err != nil {
 		return nil, err
 	}
 
-	signed, err := config.Setups[0].Serializer.Serialize(internalStruct{Raw: encodedData, Signature: encodedSign})
+	signed, err := setup.Serializer.Serialize(internalStruct{Raw: encodedData, Signature: encodedSign, At: time.Now()})
 	if err != nil {
 		return nil, err
 	}
