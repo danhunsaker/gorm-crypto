@@ -27,6 +27,8 @@ Then, in your code, you would do something like this:
 package main
 
 import (
+    "time"
+
     gc "github.com/danhunsaker/gorm-crypto"
     "github.com/danhunsaker/gorm-crypto/encoding"
     "github.com/danhunsaker/gorm-crypto/encryption"
@@ -44,8 +46,8 @@ func main() {
     }
 
     gc.Init(gc.Config{
-        Setups: []gc.Setup{
-            {
+        Setups: map[time.Time]gc.Setup{
+            time.Date(2022, 1, 1, 15, 17, 35, 0, time.UTC): {
 				Encoder:          encoding.Base64{},
 				Serializer:       serializing.JSON{},
 				EncryptAlgorithm: aes,
@@ -59,12 +61,14 @@ func main() {
 With that setup in place, it's as simple as using one or more of the types this library offers to encrypt and/or sign any field you like.
 
 ```go
+import "github.com/danhunsaker/gorm-crypto/cryptypes"
+
 type ContrivedPersonExample struct {
-    Name    gc.SignedString
-    Email   gc.EncryptedString
-    Address gc.NullEncryptedString
-    Phone   gc.NullSignedEncryptedString
-    Age     gc.SignedEncryptedUint
+    Name    cryptypes.SignedString
+    Email   cryptypes.EncryptedString
+    Address cryptypes.NullEncryptedString
+    Phone   cryptypes.NullSignedEncryptedString
+    Age     cryptypes.SignedEncryptedUint
 }
 ```
 
