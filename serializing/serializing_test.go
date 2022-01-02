@@ -97,139 +97,14 @@ func TestSerializing(t *testing.T) {
 	}
 }
 
-func runTest(t *testing.T, serializer serializing.Algorithm, expected, actual interface{}) {
+func runTest(t *testing.T, serializer serializing.Algorithm, expected, target interface{}) {
 	t.Run(fmt.Sprintf("%s(%s)", reflect.TypeOf(serializer).String(), reflect.TypeOf(expected).String()), func(t *testing.T) {
-		var serialized []byte
-		var err error
-
-		switch expected := expected.(type) {
-		case bool:
-			serialized, err = serializer.Serialize(expected)
-		case []byte:
-			serialized, err = serializer.Serialize(expected)
-		case complex64:
-			var bin bytes.Buffer
-			err = binary.Write(&bin, binary.LittleEndian, expected)
-			if err == nil {
-				serialized, err = serializer.Serialize(bin.Bytes())
-			}
-		case complex128:
-			var bin bytes.Buffer
-			err = binary.Write(&bin, binary.LittleEndian, expected)
-			if err == nil {
-				serialized, err = serializer.Serialize(bin.Bytes())
-			}
-		case float32:
-			serialized, err = serializer.Serialize(expected)
-		case float64:
-			serialized, err = serializer.Serialize(expected)
-		case int:
-			serialized, err = serializer.Serialize(expected)
-		case int8:
-			serialized, err = serializer.Serialize(expected)
-		case int16:
-			serialized, err = serializer.Serialize(expected)
-		case int32:
-			serialized, err = serializer.Serialize(expected)
-		case int64:
-			serialized, err = serializer.Serialize(expected)
-		case []rune:
-			serialized, err = serializer.Serialize(expected)
-		case string:
-			serialized, err = serializer.Serialize(expected)
-		case time.Time:
-			serialized, err = serializer.Serialize(expected)
-		case uint:
-			serialized, err = serializer.Serialize(expected)
-		case uint8:
-			serialized, err = serializer.Serialize(expected)
-		case uint16:
-			serialized, err = serializer.Serialize(expected)
-		case uint32:
-			serialized, err = serializer.Serialize(expected)
-		case uint64:
-			serialized, err = serializer.Serialize(expected)
-		case testStruct:
-			serialized, err = serializer.Serialize(expected)
-		default:
-			err = fmt.Errorf("unsupported value %s(%v)", reflect.TypeOf(expected), expected)
-		}
+		serialized, err := serialize(serializer, expected)
 		if err != nil {
 			t.Errorf("%s.Serialize error: %v", reflect.TypeOf(serializer).String(), err)
 		}
 
-		switch temp := actual.(type) {
-		case bool:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case []byte:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case complex64:
-			var temp2 []byte
-			err = serializer.Unserialize(serialized, &temp2)
-			if err == nil {
-				err = binary.Read(bytes.NewBuffer(temp2), binary.LittleEndian, &temp)
-				actual = temp
-			}
-		case complex128:
-			var temp2 []byte
-			err = serializer.Unserialize(serialized, &temp2)
-			if err == nil {
-				err = binary.Read(bytes.NewBuffer(temp2), binary.LittleEndian, &temp)
-				actual = temp
-			}
-		case float32:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case float64:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case int:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case int8:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case int16:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case int32:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case int64:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case []rune:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case string:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case time.Time:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case uint:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case uint8:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case uint16:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case uint32:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case uint64:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		case testStruct:
-			err = serializer.Unserialize(serialized, &temp)
-			actual = temp
-		default:
-			err = fmt.Errorf("unsupported value %s(%v)", reflect.TypeOf(actual), actual)
-		}
+		actual, err := unserialize(serializer, serialized, target)
 		if err != nil {
 			t.Errorf("%s.Unserialize error: %v", reflect.TypeOf(serializer).String(), err)
 		}
@@ -252,6 +127,194 @@ func runTest(t *testing.T, serializer serializing.Algorithm, expected, actual in
 			t.Errorf("Expected %s(%v); got %s(%v) instead", reflect.TypeOf(expected).String(), expected, reflect.TypeOf(actual).String(), actual)
 		}
 	})
+}
+
+func serialize(serializer serializing.Algorithm, expected interface{}) (serialized []byte, err error) {
+	switch expected := expected.(type) {
+	case bool:
+		serialized, err = serializer.Serialize(expected)
+	case []byte:
+		serialized, err = serializer.Serialize(expected)
+	case []rune:
+		serialized, err = serializer.Serialize(expected)
+	case string:
+		serialized, err = serializer.Serialize(expected)
+	case testStruct:
+		serialized, err = serializer.Serialize(expected)
+	case complex64, complex128, float32, float64, time.Time:
+		serialized, err = serializeNumeric(serializer, expected)
+	case int, int8, int16, int32, int64:
+		serialized, err = serializeInt(serializer, expected)
+	case uint, uint8, uint16, uint32, uint64:
+		serialized, err = serializeUint(serializer, expected)
+	default:
+		err = fmt.Errorf("unsupported value %s(%v)", reflect.TypeOf(expected).String(), expected)
+	}
+
+	return
+}
+
+func serializeNumeric(serializer serializing.Algorithm, expected interface{}) (serialized []byte, err error) {
+	switch expected := expected.(type) {
+	case complex64:
+		var bin bytes.Buffer
+		err = binary.Write(&bin, binary.LittleEndian, expected)
+		if err == nil {
+			serialized, err = serializer.Serialize(bin.Bytes())
+		}
+	case complex128:
+		var bin bytes.Buffer
+		err = binary.Write(&bin, binary.LittleEndian, expected)
+		if err == nil {
+			serialized, err = serializer.Serialize(bin.Bytes())
+		}
+	case float32:
+		serialized, err = serializer.Serialize(expected)
+	case float64:
+		serialized, err = serializer.Serialize(expected)
+	case time.Time:
+		serialized, err = serializer.Serialize(expected)
+	}
+
+	return
+}
+
+func serializeInt(serializer serializing.Algorithm, expected interface{}) (serialized []byte, err error) {
+	switch expected := expected.(type) {
+	case int:
+		serialized, err = serializer.Serialize(expected)
+	case int8:
+		serialized, err = serializer.Serialize(expected)
+	case int16:
+		serialized, err = serializer.Serialize(expected)
+	case int32:
+		serialized, err = serializer.Serialize(expected)
+	case int64:
+		serialized, err = serializer.Serialize(expected)
+	}
+
+	return
+}
+
+func serializeUint(serializer serializing.Algorithm, expected interface{}) (serialized []byte, err error) {
+	switch expected := expected.(type) {
+	case uint:
+		serialized, err = serializer.Serialize(expected)
+	case uint8:
+		serialized, err = serializer.Serialize(expected)
+	case uint16:
+		serialized, err = serializer.Serialize(expected)
+	case uint32:
+		serialized, err = serializer.Serialize(expected)
+	case uint64:
+		serialized, err = serializer.Serialize(expected)
+	}
+
+	return
+}
+
+func unserialize(serializer serializing.Algorithm, serialized []byte, target interface{}) (actual interface{}, err error) {
+	switch temp := target.(type) {
+	case bool:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case []byte:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case []rune:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case string:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case testStruct:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case complex64, complex128, float32, float64, time.Time:
+		actual, err = unserializeNumeric(serializer, serialized, target)
+	case int, int8, int16, int32, int64:
+		actual, err = unserializeInt(serializer, serialized, target)
+	case uint, uint8, uint16, uint32, uint64:
+		actual, err = unserializeUint(serializer, serialized, target)
+	default:
+		err = fmt.Errorf("unsupported value %s(%v)", reflect.TypeOf(actual), actual)
+	}
+
+	return
+}
+
+func unserializeNumeric(serializer serializing.Algorithm, serialized []byte, target interface{}) (actual interface{}, err error) {
+	switch temp := target.(type) {
+	case complex64:
+		var temp2 []byte
+		err = serializer.Unserialize(serialized, &temp2)
+		if err == nil {
+			err = binary.Read(bytes.NewBuffer(temp2), binary.LittleEndian, &temp)
+			actual = temp
+		}
+	case complex128:
+		var temp2 []byte
+		err = serializer.Unserialize(serialized, &temp2)
+		if err == nil {
+			err = binary.Read(bytes.NewBuffer(temp2), binary.LittleEndian, &temp)
+			actual = temp
+		}
+	case float32:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case float64:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case time.Time:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	}
+
+	return
+}
+
+func unserializeInt(serializer serializing.Algorithm, serialized []byte, target interface{}) (actual interface{}, err error) {
+	switch temp := target.(type) {
+	case int:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case int8:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case int16:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case int32:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case int64:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	}
+
+	return
+}
+
+func unserializeUint(serializer serializing.Algorithm, serialized []byte, target interface{}) (actual interface{}, err error) {
+	switch temp := target.(type) {
+	case uint:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case uint8:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case uint16:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case uint32:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	case uint64:
+		err = serializer.Unserialize(serialized, &temp)
+		actual = temp
+	}
+
+	return
 }
 
 type testStruct struct {
