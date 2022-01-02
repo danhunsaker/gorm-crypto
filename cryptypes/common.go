@@ -1,3 +1,4 @@
+// Package cryptypes provides the supported cryptographic types supperted by gormcrypto out of the box
 package cryptypes
 
 import (
