@@ -54,7 +54,8 @@ func GlobalConfig() Config {
 // ConfigFromBytes converts a YAML document into a valid Config object
 func ConfigFromBytes(contents []byte) (c Config) {
 	var parsed yamlContents
-	if err := yaml.Unmarshal(contents, parsed); err != nil {
+	if err := yaml.Unmarshal(contents, &parsed); err == nil {
+		c.Setups = make(map[time.Time]Setup, len(parsed))
 		for setupTime, setupValue := range parsed {
 			c.Setups[setupTime] = Setup{
 				Encoder:    encoding.FromYaml(setupValue.Encoding.Algorithm, setupValue.Encoding.Config),
