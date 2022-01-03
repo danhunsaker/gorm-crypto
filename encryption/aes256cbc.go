@@ -5,14 +5,36 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"io"
 )
 
-// AES256CBC supports AES256CBC
+func init() {
+	RegisterAlgo("aes256cbc", func(m map[string]interface{}) Algorithm {
+		key, _ := hex.DecodeString(m["key"].(string))
+		algo, _ := NewAES256CBC(string(key))
+		return algo
+	})
+}
+
+// AES256CBC supports AES256CBC encryption of arbitrary data
 type AES256CBC struct {
 	Algorithm
+	key   string
 	block cipher.Block
+}
+
+// Name identifies the Algorithm as a string for exporting configurations
+func (AES256CBC) Name() string {
+	return "aes256cbc"
+}
+
+// Config converts an Algorthim's internal configuration into a map for export
+func (e AES256CBC) Config() map[string]interface{} {
+	return map[string]interface{}{
+		"key": hex.EncodeToString([]byte(e.key)),
+	}
 }
 
 // NewAES256CBC creates a new AES256CBC value
@@ -28,6 +50,7 @@ func NewAES256CBC(key string) (*AES256CBC, error) {
 	}
 
 	return &AES256CBC{
+		key:   key,
 		block: block,
 	}, nil
 }

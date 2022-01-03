@@ -2,13 +2,33 @@ package signing
 
 import (
 	"crypto/ed25519"
+	"encoding/hex"
 )
+
+func init() {
+	RegisterAlgo("ed25519", func(m map[string]interface{}) Algorithm {
+		seed, _ := hex.DecodeString(m["key"].(string))
+		return NewED25519FromSeed(string(seed))
+	})
+}
 
 // ED25519 supports ED25519
 type ED25519 struct {
 	Algorithm
 	private *ed25519.PrivateKey
 	public  *ed25519.PublicKey
+}
+
+// Name identifies the Algorithm as a string for exporting configurations
+func (ED25519) Name() string {
+	return "ed25519"
+}
+
+// Config converts an Algorthim's internal configuration into a map for export
+func (s ED25519) Config() map[string]interface{} {
+	return map[string]interface{}{
+		"key": hex.EncodeToString(s.private.Seed()),
+	}
 }
 
 // NewED25519 creates a new ED25519 value

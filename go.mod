@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 	gorm.io/driver/bigquery v1.0.16
 	gorm.io/driver/clickhouse v0.2.2
 	gorm.io/driver/mysql v1.2.2

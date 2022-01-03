@@ -13,13 +13,17 @@
 
 Another library for encrypting/signing data with GORM
 
-## Usage
+## Installation
 
 As with any other Go lib, you'll want to `go get` the module:
 
 ```bash
 go get github.com/danhunsaker/gorm-crypto
 ```
+
+## Usage
+
+### Code-Based Config
 
 Then, in your code, you would do something like this:
 
@@ -50,13 +54,50 @@ func main() {
             time.Date(2022, 1, 1, 15, 17, 35, 0, time.UTC): {
 				Encoder:          encoding.Base64{},
 				Serializer:       serializing.JSON{},
-				EncryptAlgorithm: aes,
-				SignAlgorithm:    signing.NewED25519FromSeed(sKey),
+				Encrypter: aes,
+				Signer:    signing.NewED25519FromSeed(sKey),
             },
         },
     })
 }
 ```
+
+### YAML-Based Config
+
+Alternately, you can do something like this:
+
+```go
+package main
+
+import (
+    gc "github.com/danhunsaker/gorm-crypto"
+)
+
+func main() {
+    rawConfig, _ := os.ReadFile("crypto.yaml")
+    gc.Init(gc.ConfigFromBytes(rawConfig))
+}
+```
+
+And in `crypto.yaml`:
+
+```yaml
+"2022-01-01T15:17:35Z":
+  encoding:
+    algorithm: base64
+  serializing:
+    algorithm: json
+  encryption:
+    algorithm: aes256gcm
+    config:
+      key: 456E6372797074696F6E4B65795468617453686F756C64427933324279746573 # EncryptionKeyThatShouldBe32Bytes in hex
+  signing:
+    algorithm: ed25519
+    config:
+      key: 5369676E696E674B65795468617453686F756C64426533324279746573546F6F # SigningKeyThatShouldBe32BytesToo in hex
+```
+
+### Types
 
 With that setup in place, it's as simple as using one or more of the types this library offers to encrypt and/or sign any field you like.
 

@@ -2,9 +2,25 @@ package serializing
 
 import "encoding/json"
 
-// JSON supports JSON
+func init() {
+	RegisterAlgo("json", func(m map[string]interface{}) Algorithm {
+		return JSON{}
+	})
+}
+
+// JSON supports JSON serialization of arbitrary data structures
 type JSON struct {
 	Algorithm
+}
+
+// Name identifies the Algorithm as a string for exporting configurations
+func (JSON) Name() string {
+	return "json"
+}
+
+// Config converts an Algorthim's internal configuration into a map for export
+func (JSON) Config() map[string]interface{} {
+	return nil
 }
 
 // Serialize ::: JSON

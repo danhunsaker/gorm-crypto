@@ -5,9 +5,25 @@ import (
 	"encoding/gob"
 )
 
-// GOB supports GOB
+func init() {
+	RegisterAlgo("gob", func(m map[string]interface{}) Algorithm {
+		return GOB{}
+	})
+}
+
+// GOB supports GOB serialization of arbitrary data structures
 type GOB struct {
 	Algorithm
+}
+
+// Name identifies the Algorithm as a string for exporting configurations
+func (GOB) Name() string {
+	return "gob"
+}
+
+// Config converts an Algorthim's internal configuration into a map for export
+func (GOB) Config() map[string]interface{} {
+	return nil
 }
 
 // Serialize ::: GOB

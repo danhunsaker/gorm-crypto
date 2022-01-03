@@ -81,22 +81,22 @@ func TestMain(m *testing.M) {
 	gc.Init(gc.Config{
 		Setups: map[time.Time]gc.Setup{
 			time.Now().Add(-1 * time.Minute): {
-				Encoder:          encoding.Base64{},
-				Serializer:       serializing.JSON{},
-				EncryptAlgorithm: xchacha,
-				SignAlgorithm:    signing.NewED25519FromSeed(sKey),
+				Encoder:    encoding.Base64{},
+				Serializer: serializing.JSON{},
+				Encrypter:  xchacha,
+				Signer:     signing.NewED25519FromSeed(sKey),
 			},
 			time.Now().Add(1 * time.Hour): {
-				Encoder:          encoding.Hex{},
-				Serializer:       serializing.GOB{},
-				EncryptAlgorithm: aes,
-				SignAlgorithm:    signing.NewECDSA(ecdsaKey, &ecdsaKey.PublicKey),
+				Encoder:    encoding.Hex{},
+				Serializer: serializing.GOB{},
+				Encrypter:  aes,
+				Signer:     signing.NewECDSA(ecdsaKey, &ecdsaKey.PublicKey),
 			},
 			time.Now().Add(-1 * time.Hour): {
-				Encoder:          encoding.Hex{},
-				Serializer:       serializing.GOB{},
-				EncryptAlgorithm: aes,
-				SignAlgorithm:    signing.NewECDSA(ecdsaKey, &ecdsaKey.PublicKey),
+				Encoder:    encoding.Hex{},
+				Serializer: serializing.GOB{},
+				Encrypter:  aes,
+				Signer:     signing.NewECDSA(ecdsaKey, &ecdsaKey.PublicKey),
 			},
 		},
 	})

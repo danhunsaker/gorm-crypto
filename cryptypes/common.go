@@ -54,7 +54,7 @@ func encrypt(value interface{}) (driver.Value, error) {
 		return nil, err
 	}
 
-	crypted, err := setup.EncryptAlgorithm.Encrypt(serial)
+	crypted, err := setup.Encrypter.Encrypt(serial)
 	if err != nil {
 		return nil, err
 	}
@@ -93,13 +93,13 @@ func decrypt(source []byte, dest interface{}) error {
 		return err
 	}
 
-	decrypted, err = setup.EncryptAlgorithm.Decrypt(binary)
+	decrypted, err = setup.Encrypter.Decrypt(binary)
 	if err != nil {
 		return err
 	}
 
 	err = setup.Serializer.Unserialize(decrypted, &dest)
-	if err == nil {
+	if err != nil {
 		return err
 	}
 
@@ -114,7 +114,7 @@ func sign(value interface{}) (driver.Value, error) {
 		return nil, err
 	}
 
-	signature, err := setup.SignAlgorithm.Sign(serial)
+	signature, err := setup.Signer.Sign(serial)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func verify(source []byte, dest interface{}) (bool, error) {
 		return false, err
 	}
 
-	valid, err = setup.SignAlgorithm.Verify(signed.Raw, signature)
+	valid, err = setup.Signer.Verify(signed.Raw, signature)
 	if err != nil {
 		return false, err
 	}
@@ -175,7 +175,7 @@ func encryptSign(value interface{}) (driver.Value, error) {
 		return nil, err
 	}
 
-	crypted, err := setup.EncryptAlgorithm.Encrypt(serial)
+	crypted, err := setup.Encrypter.Encrypt(serial)
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +185,7 @@ func encryptSign(value interface{}) (driver.Value, error) {
 		return nil, err
 	}
 
-	signature, err := setup.SignAlgorithm.Sign(serial)
+	signature, err := setup.Signer.Sign(serial)
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +225,7 @@ func decryptVerify(source []byte, dest interface{}) (bool, error) {
 		return false, err
 	}
 
-	decrypted, err = setup.EncryptAlgorithm.Decrypt(decoded)
+	decrypted, err = setup.Encrypter.Decrypt(decoded)
 	if err != nil {
 		return false, err
 	}
@@ -235,7 +235,7 @@ func decryptVerify(source []byte, dest interface{}) (bool, error) {
 		return false, err
 	}
 
-	valid, err = setup.SignAlgorithm.Verify(decrypted, signature)
+	valid, err = setup.Signer.Verify(decrypted, signature)
 	if err != nil {
 		return false, err
 	}

@@ -4,14 +4,36 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"io"
 )
 
-// AES256GCM supports AES256GCM
+func init() {
+	RegisterAlgo("aes256gcm", func(m map[string]interface{}) Algorithm {
+		key, _ := hex.DecodeString(m["key"].(string))
+		algo, _ := NewAES256GCM(string(key))
+		return algo
+	})
+}
+
+// AES256GCM supports AES256GCM encryption of arbitrary data
 type AES256GCM struct {
 	Algorithm
+	key  string
 	aead cipher.AEAD
+}
+
+// Name identifies the Algorithm as a string for exporting configurations
+func (AES256GCM) Name() string {
+	return "aes256gcm"
+}
+
+// Config converts an Algorthim's internal configuration into a map for export
+func (e AES256GCM) Config() map[string]interface{} {
+	return map[string]interface{}{
+		"key": hex.EncodeToString([]byte(e.key)),
+	}
 }
 
 // NewAES creates a new AES value
@@ -41,6 +63,7 @@ func NewAES256GCM(key string) (*AES256GCM, error) {
 	}
 
 	return &AES256GCM{
+		key:  key,
 		aead: aesGCM,
 	}, nil
 }

@@ -2,16 +2,46 @@ package encryption
 
 import (
 	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"io"
 
 	"golang.org/x/crypto/nacl/box"
 )
 
-// NaClBox supports NaClBox
+func init() {
+	RegisterAlgo("naclbox", func(m map[string]interface{}) Algorithm {
+		privKeySlice, _ := hex.DecodeString(m["private_key"].(string))
+		privKey := [32]byte{}
+		copy(privKey[:], privKeySlice)
+
+		pubKeySlice, _ := hex.DecodeString(m["public_key"].(string))
+		pubKey := [32]byte{}
+		copy(pubKey[:], pubKeySlice)
+
+		return NewNaClBox(&privKey, &pubKey)
+	})
+}
+
+// NaClBox supports NaClBox enrcryption of arbitrary data
 type NaClBox struct {
 	Algorithm
-	sharedKey [32]byte
+	privateKey [32]byte
+	publicKey  [32]byte
+	sharedKey  [32]byte
+}
+
+// Name identifies the Algorithm as a string for exporting configurations
+func (NaClBox) Name() string {
+	return "naclbox"
+}
+
+// Config converts an Algorthim's internal configuration into a map for export
+func (e NaClBox) Config() map[string]interface{} {
+	return map[string]interface{}{
+		"private_key": hex.EncodeToString(e.privateKey[:]),
+		"public_key":  hex.EncodeToString(e.publicKey[:]),
+	}
 }
 
 // NewNaClBox creates a new NaClBox value
@@ -20,7 +50,9 @@ func NewNaClBox(privateKey, publicKey *[32]byte) *NaClBox {
 	box.Precompute(sharedEncryptKey, publicKey, privateKey)
 
 	return &NaClBox{
-		sharedKey: *sharedEncryptKey,
+		privateKey: *privateKey,
+		publicKey:  *publicKey,
+		sharedKey:  *sharedEncryptKey,
 	}
 }
 

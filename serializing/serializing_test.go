@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"reflect"
+	"sort"
 	"testing"
 	"time"
 
@@ -12,10 +13,7 @@ import (
 )
 
 func TestSerializing(t *testing.T) {
-	for _, serializer := range []serializing.Algorithm{
-		serializing.GOB{},
-		serializing.JSON{},
-	} {
+	for _, serializer := range getAlgos() {
 		var actualBool bool
 		var actualByteSlice []byte
 		var actualByte byte
@@ -94,6 +92,52 @@ func TestSerializing(t *testing.T) {
 		runTest(t, serializer, expectedUint32, actualUint32)
 		runTest(t, serializer, expectedUint64, actualUint64)
 		runTest(t, serializer, expectedStruct, actualStruct)
+	}
+}
+
+func TestExports(t *testing.T) {
+	for _, crypto := range getAlgos() {
+		t.Run(reflect.TypeOf(crypto).String(), func(t *testing.T) {
+			name, config := crypto.Name(), crypto.Config()
+			created := serializing.FromYaml(name, config)
+
+			if !reflect.DeepEqual(crypto, created) {
+				t.Errorf("Expected %v; got %v instead", crypto, created)
+			}
+			if created.Name() != name {
+				t.Errorf("Expected %v; got %v instead", name, created.Name())
+			}
+			if !reflect.DeepEqual(created.Config(), config) {
+				t.Errorf("Expected %v; got %v instead", config, created.Config())
+			}
+		})
+	}
+}
+
+func TestAlgoSupportFuncs(t *testing.T) {
+	expected := append(serializing.SupportedAlgos(), "test")
+	sort.Slice(expected, func(i, j int) bool {
+		return expected[i] < expected[j]
+	})
+
+	serializing.RegisterAlgo("test", func(m map[string]interface{}) serializing.Algorithm {
+		return nil
+	})
+
+	actual := serializing.SupportedAlgos()
+	sort.Slice(actual, func(i, j int) bool {
+		return actual[i] < actual[j]
+	})
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected %v; got %v instead", expected, actual)
+	}
+}
+
+func getAlgos() []serializing.Algorithm {
+	return []serializing.Algorithm{
+		serializing.GOB{},
+		serializing.JSON{},
 	}
 }
 
