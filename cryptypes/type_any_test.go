@@ -12,6 +12,7 @@ var in = testStruct{
 	Age:    42,
 	Gender: &gender,
 }
+var unset testStruct
 
 func TestEncryptedAny(t *testing.T) {
 	var out testStruct
@@ -36,6 +37,25 @@ func TestEncryptedAny(t *testing.T) {
 	}
 }
 
+func TestEncryptedAnyUnset(t *testing.T) {
+	var out testStruct
+	expected := cryptypes.EncryptedAny{
+		Raw: &unset,
+	}
+	actual := cryptypes.EncryptedAny{
+		Raw: &out,
+	}
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !actual.Raw.(*testStruct).Equals(*expected.Raw.(*testStruct)) {
+		t.Errorf("Expected raw = %v; got %v", *expected.Raw.(*testStruct), *actual.Raw.(*testStruct))
+	}
+}
+
 func TestNullEncryptedAny(t *testing.T) {
 	var out testStruct
 	expected := cryptypes.NullEncryptedAny{
@@ -50,6 +70,28 @@ func TestNullEncryptedAny(t *testing.T) {
 		t.Error(err)
 	}
 	err = actual.Scan(crypted)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !actual.Raw.(*testStruct).Equals(*expected.Raw.(*testStruct)) {
+		t.Errorf("Expected raw = %v; got %v", *expected.Raw.(*testStruct), *actual.Raw.(*testStruct))
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullEncryptedAnyUnset(t *testing.T) {
+	var out testStruct
+	expected := cryptypes.NullEncryptedAny{
+		Raw: &unset,
+	}
+	actual := cryptypes.NullEncryptedAny{
+		Raw: &out,
+	}
+
+	err := actual.Scan([]byte(""))
 	if err != nil {
 		t.Error(err)
 	}
@@ -112,6 +154,28 @@ func TestSignedAny(t *testing.T) {
 	}
 }
 
+func TestSignedAnyUnset(t *testing.T) {
+	var out testStruct
+	expected := cryptypes.SignedAny{
+		Raw: &unset,
+	}
+	actual := cryptypes.SignedAny{
+		Raw: &out,
+	}
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !actual.Raw.(*testStruct).Equals(*expected.Raw.(*testStruct)) {
+		t.Errorf("Expected raw = %v; got %v", *expected.Raw.(*testStruct), *actual.Raw.(*testStruct))
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
+	}
+}
+
 func TestSignedAnyTampered(t *testing.T) {
 	var out testStruct
 	expected := cryptypes.SignedAny{
@@ -161,6 +225,31 @@ func TestNullSignedAny(t *testing.T) {
 	}
 	if actual.Valid != true {
 		t.Errorf("Expected valid = true; got %v", actual.Valid)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullSignedAnyUnset(t *testing.T) {
+	var out testStruct
+	expected := cryptypes.NullSignedAny{
+		Raw: &unset,
+	}
+	actual := cryptypes.NullSignedAny{
+		Raw: &out,
+	}
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !actual.Raw.(*testStruct).Equals(*expected.Raw.(*testStruct)) {
+		t.Errorf("Expected raw = %v; got %v", *expected.Raw.(*testStruct), *actual.Raw.(*testStruct))
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
 	}
 	if actual.Empty != expected.Empty {
 		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
@@ -249,6 +338,28 @@ func TestSignedEncryptedAny(t *testing.T) {
 	}
 }
 
+func TestSignedEncryptedAnyUnset(t *testing.T) {
+	var out testStruct
+	expected := cryptypes.SignedEncryptedAny{
+		Raw: &unset,
+	}
+	actual := cryptypes.SignedEncryptedAny{
+		Raw: &out,
+	}
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !actual.Raw.(*testStruct).Equals(*expected.Raw.(*testStruct)) {
+		t.Errorf("Expected raw = %v; got %v", *expected.Raw.(*testStruct), *actual.Raw.(*testStruct))
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
+	}
+}
+
 func TestSignedEncryptedAnyTampered(t *testing.T) {
 	var out testStruct
 	expected := cryptypes.SignedEncryptedAny{
@@ -298,6 +409,31 @@ func TestNullSignedEncryptedAny(t *testing.T) {
 	}
 	if actual.Valid != true {
 		t.Errorf("Expected valid = true; got %v", actual.Valid)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullSignedEncryptedAnyUnset(t *testing.T) {
+	var out testStruct
+	expected := cryptypes.NullSignedEncryptedAny{
+		Raw: &unset,
+	}
+	actual := cryptypes.NullSignedEncryptedAny{
+		Raw: &out,
+	}
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !actual.Raw.(*testStruct).Equals(*expected.Raw.(*testStruct)) {
+		t.Errorf("Expected raw = %v; got %v", *expected.Raw.(*testStruct), *actual.Raw.(*testStruct))
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
 	}
 	if actual.Empty != expected.Empty {
 		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)

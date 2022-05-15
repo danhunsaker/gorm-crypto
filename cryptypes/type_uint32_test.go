@@ -26,6 +26,20 @@ func TestEncryptedUint32(t *testing.T) {
 	}
 }
 
+func TestEncryptedUint32Unset(t *testing.T) {
+	expected := cryptypes.EncryptedUint32{}
+	var actual cryptypes.EncryptedUint32
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+}
+
 func TestNullEncryptedUint32(t *testing.T) {
 	expected := cryptypes.NullEncryptedUint32{
 		Raw: 42,
@@ -37,6 +51,23 @@ func TestNullEncryptedUint32(t *testing.T) {
 		t.Error(err)
 	}
 	err = actual.Scan(crypted)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullEncryptedUint32Unset(t *testing.T) {
+	expected := cryptypes.NullEncryptedUint32{}
+	var actual cryptypes.NullEncryptedUint32
+
+	err := actual.Scan([]byte(""))
 	if err != nil {
 		t.Error(err)
 	}
@@ -93,6 +124,23 @@ func TestSignedUint32(t *testing.T) {
 	}
 }
 
+func TestSignedUint32Unset(t *testing.T) {
+	expected := cryptypes.SignedUint32{}
+	var actual cryptypes.SignedUint32
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
+	}
+}
+
 func TestSignedUint32Tampered(t *testing.T) {
 	expected := cryptypes.SignedUint32{
 		Raw: 42,
@@ -136,6 +184,26 @@ func TestNullSignedUint32(t *testing.T) {
 	}
 	if actual.Valid != true {
 		t.Errorf("Expected valid = true; got %v", actual.Valid)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullSignedUint32Unset(t *testing.T) {
+	expected := cryptypes.NullSignedUint32{}
+	var actual cryptypes.NullSignedUint32
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
 	}
 	if actual.Empty != expected.Empty {
 		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
@@ -215,6 +283,23 @@ func TestSignedEncryptedUint32(t *testing.T) {
 	}
 }
 
+func TestSignedEncryptedUint32Unset(t *testing.T) {
+	expected := cryptypes.SignedEncryptedUint32{}
+	var actual cryptypes.SignedEncryptedUint32
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
+	}
+}
+
 func TestSignedEncryptedUint32Tampered(t *testing.T) {
 	expected := cryptypes.SignedEncryptedUint32{
 		Raw: 42,
@@ -258,6 +343,26 @@ func TestNullSignedEncryptedUint32(t *testing.T) {
 	}
 	if actual.Valid != true {
 		t.Errorf("Expected valid = true; got %v", actual.Valid)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullSignedEncryptedUint32Unset(t *testing.T) {
+	expected := cryptypes.NullSignedEncryptedUint32{}
+	var actual cryptypes.NullSignedEncryptedUint32
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
 	}
 	if actual.Empty != expected.Empty {
 		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)

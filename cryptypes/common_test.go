@@ -122,7 +122,7 @@ type testStruct struct {
 
 // Equals ::: Struct
 func (actual testStruct) Equals(expected testStruct) bool {
-	return actual.Name == expected.Name && actual.Age == expected.Age && *actual.Gender == *expected.Gender
+	return actual.Name == expected.Name && actual.Age == expected.Age && ((actual.Gender == nil && expected.Gender == nil) || *actual.Gender == *expected.Gender)
 }
 
 func tamperWith(signed driver.Value, attack []byte) []byte {

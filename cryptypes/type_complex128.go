@@ -20,6 +20,11 @@ func (s *EncryptedComplex128) Scan(value interface{}) error {
 		return err
 	}
 
+	if len(bin) == 0 {
+		s.Raw = 0
+		return nil
+	}
+
 	return binary.Read(bytes.NewBuffer(bin), binary.LittleEndian, &s.Raw)
 }
 
@@ -54,6 +59,11 @@ func (s *NullEncryptedComplex128) Scan(value interface{}) error {
 		return err
 	}
 
+	if len(bin) == 0 {
+		s.Raw = 0
+		return nil
+	}
+
 	return binary.Read(bytes.NewBuffer(bin), binary.LittleEndian, &s.Raw)
 }
 
@@ -84,6 +94,11 @@ func (s *SignedComplex128) Scan(value interface{}) (err error) {
 	s.Valid, err = verify(value.([]byte), &bin)
 	if err != nil {
 		return err
+	}
+
+	if len(bin) == 0 {
+		s.Raw = 0
+		return nil
 	}
 
 	return binary.Read(bytes.NewBuffer(bin), binary.LittleEndian, &s.Raw)
@@ -122,6 +137,11 @@ func (s *NullSignedComplex128) Scan(value interface{}) (err error) {
 		return err
 	}
 
+	if len(bin) == 0 {
+		s.Raw = 0
+		return nil
+	}
+
 	return binary.Read(bytes.NewBuffer(bin), binary.LittleEndian, &s.Raw)
 }
 
@@ -152,6 +172,11 @@ func (s *SignedEncryptedComplex128) Scan(value interface{}) (err error) {
 	s.Valid, err = decryptVerify(value.([]byte), &bin)
 	if err != nil {
 		return err
+	}
+
+	if len(bin) == 0 {
+		s.Raw = 0
+		return nil
 	}
 
 	return binary.Read(bytes.NewBuffer(bin), binary.LittleEndian, &s.Raw)
@@ -188,6 +213,11 @@ func (s *NullSignedEncryptedComplex128) Scan(value interface{}) (err error) {
 	s.Valid, err = decryptVerify(value.([]byte), &bin)
 	if err != nil {
 		return err
+	}
+
+	if len(bin) == 0 {
+		s.Raw = 0
+		return nil
 	}
 
 	return binary.Read(bytes.NewBuffer(bin), binary.LittleEndian, &s.Raw)

@@ -26,6 +26,20 @@ func TestEncryptedInt(t *testing.T) {
 	}
 }
 
+func TestEncryptedIntUnset(t *testing.T) {
+	expected := cryptypes.EncryptedInt{}
+	var actual cryptypes.EncryptedInt
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+}
+
 func TestNullEncryptedInt(t *testing.T) {
 	expected := cryptypes.NullEncryptedInt{
 		Raw: 42,
@@ -37,6 +51,23 @@ func TestNullEncryptedInt(t *testing.T) {
 		t.Error(err)
 	}
 	err = actual.Scan(crypted)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullEncryptedIntUnset(t *testing.T) {
+	expected := cryptypes.NullEncryptedInt{}
+	var actual cryptypes.NullEncryptedInt
+
+	err := actual.Scan([]byte(""))
 	if err != nil {
 		t.Error(err)
 	}
@@ -93,6 +124,23 @@ func TestSignedInt(t *testing.T) {
 	}
 }
 
+func TestSignedIntUnset(t *testing.T) {
+	expected := cryptypes.SignedInt{}
+	var actual cryptypes.SignedInt
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
+	}
+}
+
 func TestSignedIntTampered(t *testing.T) {
 	expected := cryptypes.SignedInt{
 		Raw: 42,
@@ -136,6 +184,26 @@ func TestNullSignedInt(t *testing.T) {
 	}
 	if actual.Valid != true {
 		t.Errorf("Expected valid = true; got %v", actual.Valid)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullSignedIntUnset(t *testing.T) {
+	expected := cryptypes.NullSignedInt{}
+	var actual cryptypes.NullSignedInt
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
 	}
 	if actual.Empty != expected.Empty {
 		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
@@ -215,6 +283,23 @@ func TestSignedEncryptedInt(t *testing.T) {
 	}
 }
 
+func TestSignedEncryptedIntUnset(t *testing.T) {
+	expected := cryptypes.SignedEncryptedInt{}
+	var actual cryptypes.SignedEncryptedInt
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
+	}
+}
+
 func TestSignedEncryptedIntTampered(t *testing.T) {
 	expected := cryptypes.SignedEncryptedInt{
 		Raw: 42,
@@ -258,6 +343,26 @@ func TestNullSignedEncryptedInt(t *testing.T) {
 	}
 	if actual.Valid != true {
 		t.Errorf("Expected valid = true; got %v", actual.Valid)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullSignedEncryptedIntUnset(t *testing.T) {
+	expected := cryptypes.NullSignedEncryptedInt{}
+	var actual cryptypes.NullSignedEncryptedInt
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
 	}
 	if actual.Empty != expected.Empty {
 		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)

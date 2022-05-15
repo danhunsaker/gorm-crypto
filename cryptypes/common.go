@@ -77,6 +77,10 @@ func decrypt(source []byte, dest interface{}) error {
 	var binary, decrypted []byte
 	var in internalStruct
 
+	if len(source) < 1 {
+		return nil
+	}
+
 	for _, setup := range gc.GlobalConfig().Setups {
 		err = setup.Serializer.Unserialize(source, &in)
 		if err == nil {
@@ -137,6 +141,10 @@ func verify(source []byte, dest interface{}) (bool, error) {
 	var signature []byte
 	var valid bool
 	var err error
+
+	if len(source) < 1 {
+		return false, nil
+	}
 
 	for _, setup := range gc.GlobalConfig().Setups {
 		err = setup.Serializer.Unserialize(source, &signed)
@@ -208,6 +216,10 @@ func decryptVerify(source []byte, dest interface{}) (bool, error) {
 	var decoded, decrypted, signature []byte
 	var valid bool
 	var err error
+
+	if len(source) < 1 {
+		return false, nil
+	}
 
 	for _, setup := range gc.GlobalConfig().Setups {
 		err = setup.Serializer.Unserialize(source, &signed)

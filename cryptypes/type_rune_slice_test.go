@@ -27,6 +27,20 @@ func TestEncryptedRuneSlice(t *testing.T) {
 	}
 }
 
+func TestEncryptedRuneSliceUnset(t *testing.T) {
+	expected := cryptypes.EncryptedRuneSlice{}
+	var actual cryptypes.EncryptedRuneSlice
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !reflect.DeepEqual(actual.Raw, expected.Raw) {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+}
+
 func TestNullEncryptedRuneSlice(t *testing.T) {
 	expected := cryptypes.NullEncryptedRuneSlice{
 		Raw: []rune("Test"),
@@ -38,6 +52,23 @@ func TestNullEncryptedRuneSlice(t *testing.T) {
 		t.Error(err)
 	}
 	err = actual.Scan(crypted)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !reflect.DeepEqual(actual.Raw, expected.Raw) {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullEncryptedRuneSliceUnset(t *testing.T) {
+	expected := cryptypes.NullEncryptedRuneSlice{}
+	var actual cryptypes.NullEncryptedRuneSlice
+
+	err := actual.Scan([]byte(""))
 	if err != nil {
 		t.Error(err)
 	}
@@ -94,6 +125,23 @@ func TestSignedRuneSlice(t *testing.T) {
 	}
 }
 
+func TestSignedRuneSliceUnset(t *testing.T) {
+	expected := cryptypes.SignedRuneSlice{}
+	var actual cryptypes.SignedRuneSlice
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !reflect.DeepEqual(actual.Raw, expected.Raw) {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
+	}
+}
+
 func TestSignedRuneSliceTampered(t *testing.T) {
 	expected := cryptypes.SignedRuneSlice{
 		Raw: []rune("Test"),
@@ -137,6 +185,26 @@ func TestNullSignedRuneSlice(t *testing.T) {
 	}
 	if actual.Valid != true {
 		t.Errorf("Expected valid = true; got %v", actual.Valid)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullSignedRuneSliceUnset(t *testing.T) {
+	expected := cryptypes.NullSignedRuneSlice{}
+	var actual cryptypes.NullSignedRuneSlice
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !reflect.DeepEqual(actual.Raw, expected.Raw) {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
 	}
 	if actual.Empty != expected.Empty {
 		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
@@ -216,6 +284,23 @@ func TestSignedEncryptedRuneSlice(t *testing.T) {
 	}
 }
 
+func TestSignedEncryptedRuneSliceUnset(t *testing.T) {
+	expected := cryptypes.SignedEncryptedRuneSlice{}
+	var actual cryptypes.SignedEncryptedRuneSlice
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !reflect.DeepEqual(actual.Raw, expected.Raw) {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
+	}
+}
+
 func TestSignedEncryptedRuneSliceTampered(t *testing.T) {
 	expected := cryptypes.SignedEncryptedRuneSlice{
 		Raw: []rune("Test"),
@@ -259,6 +344,26 @@ func TestNullSignedEncryptedRuneSlice(t *testing.T) {
 	}
 	if actual.Valid != true {
 		t.Errorf("Expected valid = true; got %v", actual.Valid)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullSignedEncryptedRuneSliceUnset(t *testing.T) {
+	expected := cryptypes.NullSignedEncryptedRuneSlice{}
+	var actual cryptypes.NullSignedEncryptedRuneSlice
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !reflect.DeepEqual(actual.Raw, expected.Raw) {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
 	}
 	if actual.Empty != expected.Empty {
 		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)

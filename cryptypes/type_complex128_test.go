@@ -26,6 +26,20 @@ func TestEncryptedComplex128(t *testing.T) {
 	}
 }
 
+func TestEncryptedComplex128Unset(t *testing.T) {
+	expected := cryptypes.EncryptedComplex128{}
+	var actual cryptypes.EncryptedComplex128
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+}
+
 func TestNullEncryptedComplex128(t *testing.T) {
 	expected := cryptypes.NullEncryptedComplex128{
 		Raw: 42i,
@@ -37,6 +51,23 @@ func TestNullEncryptedComplex128(t *testing.T) {
 		t.Error(err)
 	}
 	err = actual.Scan(crypted)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullEncryptedComplex128Unset(t *testing.T) {
+	expected := cryptypes.NullEncryptedComplex128{}
+	var actual cryptypes.NullEncryptedComplex128
+
+	err := actual.Scan([]byte(""))
 	if err != nil {
 		t.Error(err)
 	}
@@ -93,6 +124,23 @@ func TestSignedComplex128(t *testing.T) {
 	}
 }
 
+func TestSignedComplex128Unset(t *testing.T) {
+	expected := cryptypes.SignedComplex128{}
+	var actual cryptypes.SignedComplex128
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
+	}
+}
+
 func TestSignedComplex128Tampered(t *testing.T) {
 	expected := cryptypes.SignedComplex128{
 		Raw: 42i,
@@ -136,6 +184,26 @@ func TestNullSignedComplex128(t *testing.T) {
 	}
 	if actual.Valid != true {
 		t.Errorf("Expected valid = true; got %v", actual.Valid)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullSignedComplex128Unset(t *testing.T) {
+	expected := cryptypes.NullSignedComplex128{}
+	var actual cryptypes.NullSignedComplex128
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
 	}
 	if actual.Empty != expected.Empty {
 		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
@@ -215,6 +283,23 @@ func TestSignedEncryptedComplex128(t *testing.T) {
 	}
 }
 
+func TestSignedEncryptedComplex128Unset(t *testing.T) {
+	expected := cryptypes.SignedEncryptedComplex128{}
+	var actual cryptypes.SignedEncryptedComplex128
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
+	}
+}
+
 func TestSignedEncryptedComplex128Tampered(t *testing.T) {
 	expected := cryptypes.SignedEncryptedComplex128{
 		Raw: 42i,
@@ -258,6 +343,26 @@ func TestNullSignedEncryptedComplex128(t *testing.T) {
 	}
 	if actual.Valid != true {
 		t.Errorf("Expected valid = true; got %v", actual.Valid)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullSignedEncryptedComplex128Unset(t *testing.T) {
+	expected := cryptypes.NullSignedEncryptedComplex128{}
+	var actual cryptypes.NullSignedEncryptedComplex128
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if actual.Raw != expected.Raw {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
 	}
 	if actual.Empty != expected.Empty {
 		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)

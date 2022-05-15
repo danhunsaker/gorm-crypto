@@ -27,6 +27,20 @@ func TestEncryptedByteSlice(t *testing.T) {
 	}
 }
 
+func TestEncryptedByteSliceUnset(t *testing.T) {
+	expected := cryptypes.EncryptedByteSlice{}
+	var actual cryptypes.EncryptedByteSlice
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !bytes.Equal(actual.Raw, expected.Raw) {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+}
+
 func TestNullEncryptedByteSlice(t *testing.T) {
 	expected := cryptypes.NullEncryptedByteSlice{
 		Raw: []byte("Test"),
@@ -38,6 +52,23 @@ func TestNullEncryptedByteSlice(t *testing.T) {
 		t.Error(err)
 	}
 	err = actual.Scan(crypted)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !bytes.Equal(actual.Raw, expected.Raw) {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullEncryptedByteSliceUnset(t *testing.T) {
+	expected := cryptypes.NullEncryptedByteSlice{}
+	var actual cryptypes.NullEncryptedByteSlice
+
+	err := actual.Scan([]byte(""))
 	if err != nil {
 		t.Error(err)
 	}
@@ -94,6 +125,23 @@ func TestSignedByteSlice(t *testing.T) {
 	}
 }
 
+func TestSignedByteSliceUnset(t *testing.T) {
+	expected := cryptypes.SignedByteSlice{}
+	var actual cryptypes.SignedByteSlice
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !bytes.Equal(actual.Raw, expected.Raw) {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
+	}
+}
+
 func TestSignedByteSliceTampered(t *testing.T) {
 	expected := cryptypes.SignedByteSlice{
 		Raw: []byte("Test"),
@@ -137,6 +185,26 @@ func TestNullSignedByteSlice(t *testing.T) {
 	}
 	if actual.Valid != true {
 		t.Errorf("Expected valid = true; got %v", actual.Valid)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullSignedByteSliceUnset(t *testing.T) {
+	expected := cryptypes.NullSignedByteSlice{}
+	var actual cryptypes.NullSignedByteSlice
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !bytes.Equal(actual.Raw, expected.Raw) {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
 	}
 	if actual.Empty != expected.Empty {
 		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
@@ -216,6 +284,23 @@ func TestSignedEncryptedByteSlice(t *testing.T) {
 	}
 }
 
+func TestSignedEncryptedByteSliceUnset(t *testing.T) {
+	expected := cryptypes.SignedEncryptedByteSlice{}
+	var actual cryptypes.SignedEncryptedByteSlice
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !bytes.Equal(actual.Raw, expected.Raw) {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
+	}
+}
+
 func TestSignedEncryptedByteSliceTampered(t *testing.T) {
 	expected := cryptypes.SignedEncryptedByteSlice{
 		Raw: []byte("Test"),
@@ -259,6 +344,26 @@ func TestNullSignedEncryptedByteSlice(t *testing.T) {
 	}
 	if actual.Valid != true {
 		t.Errorf("Expected valid = true; got %v", actual.Valid)
+	}
+	if actual.Empty != expected.Empty {
+		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
+	}
+}
+
+func TestNullSignedEncryptedByteSliceUnset(t *testing.T) {
+	expected := cryptypes.NullSignedEncryptedByteSlice{}
+	var actual cryptypes.NullSignedEncryptedByteSlice
+
+	err := actual.Scan([]byte(""))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !bytes.Equal(actual.Raw, expected.Raw) {
+		t.Errorf("Expected raw = %v; got %v", expected.Raw, actual.Raw)
+	}
+	if actual.Valid != false {
+		t.Errorf("Expected valid = false; got %v", actual.Valid)
 	}
 	if actual.Empty != expected.Empty {
 		t.Errorf("Expected empty = %v; got %v", expected.Empty, actual.Empty)
